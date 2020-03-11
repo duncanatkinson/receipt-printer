@@ -17,4 +17,8 @@ public class ShoppingBasket {
     public Set<Product> getProductsInBasket() {
         return products.keySet();
     }
+
+    public boolean hasProduct(Product product) {
+        return getProductsInBasket().contains(product);
+    }
 }
