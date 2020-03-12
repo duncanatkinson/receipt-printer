@@ -35,17 +35,17 @@ class CheckoutTest {
         basket.addItem(PHONE_CASE);
 
         int totalBeforeTaxInCents = checkout.calculateTotalBeforeTax(basket);
-        assertEquals(1000, totalBeforeTaxInCents);
+        assertEquals(10_00, totalBeforeTaxInCents);
     }
 
     @Test
     void should_calculateTotal_givenMultipleItems() {
         ShoppingBasket basket = new ShoppingBasket();
         basket.addItem(PHONE_CASE);
-        range(0,10).forEach((i) -> basket.addItem(SIM_CARD));
+        range(0,10).forEach((i) -> basket.addItem(WIRED_EARPHONES));
 
         int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
-        assertEquals(21000, totalBeforeTax);
+        assertEquals(310_00, totalBeforeTax);
     }
 
     @Test
@@ -54,15 +54,36 @@ class CheckoutTest {
         basket.addItem(PHONE_CASE);// CHF10.00
 
         int tax = checkout.calculateTax(basket);
-        assertEquals(120, tax);
+        assertEquals(1_20, tax);
     }
 
     @Test
-    void should_calculateTotal_givenNonTaxableItem() {
+    void should_calculateTax_givenNonTaxableItem() {
         ShoppingBasket basket = new ShoppingBasket();
         basket.addItem(PHONE_INSURANCE);
 
         int tax = checkout.calculateTax(basket);
         assertEquals(0, tax);
+    }
+
+    @Test
+    void should_calculateTotal_givenMixtureOfTaxableAndNonTaxableItems() {
+        ShoppingBasket basket = new ShoppingBasket();
+        basket.addItem(PHONE_INSURANCE);
+        basket.addItem(PHONE_CASE);
+
+        int tax = checkout.calculateTax(basket);
+        assertEquals(1_20, tax);
+    }
+
+    @Test
+    void should_calculateTotal_givenBOGOF() {
+        ShoppingBasket basket = new ShoppingBasket();
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);//Free
+        basket.addItem(SIM_CARD);
+
+        int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
+        assertEquals(40_00, totalBeforeTax);
     }
 }

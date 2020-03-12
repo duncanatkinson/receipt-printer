@@ -2,6 +2,7 @@ package duncan.atkinson.checkout;
 
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.inventory.Inventory;
+import duncan.atkinson.inventory.ProductId;
 
 /**
  * Calculates the cost of a shopping basket
@@ -28,6 +29,15 @@ public class Checkout {
     }
 
     public int calculateTax(ShoppingBasket basket) {
-        return (calculateTotalBeforeTax(basket)/100) * TAX_RATE;
+        int taxableSum = basket.getContents().stream()
+                .filter(productId -> !taxExempt(productId))
+                .map(productId -> inventory.get(productId).getPriceInCents())
+                .mapToInt(Integer::intValue)
+                .sum();
+        return (taxableSum/100) * TAX_RATE;
+    }
+
+    private boolean taxExempt(ProductId productId) {
+        return inventory.get(productId).getTaxExempt();
     }
 }

@@ -23,35 +23,37 @@ public class SimpleInventory implements Inventory {
         products.put(PHONE_CASE, aProduct()
                 .productId(PHONE_CASE)
                 .name("Phone Case")
-                .priceInCents(1000)
+                .priceInCents(10_00)
                 .taxonomy(MOBILE_PHONE_CASE)
                 .build());
 
         products.put(SIM_CARD, aProduct()
                 .productId(SIM_CARD)
                 .name("Sim Card")
-                .priceInCents(2000)
+                .priceInCents(20_00)
                 .taxonomy(MOBILE_SIM_CARD)
+                .buyOneGetOneFree(true)
                 .build());
 
         products.put(PHONE_INSURANCE, aProduct()
                 .productId(PHONE_INSURANCE)
                 .name("Phone Insurance")
-                .priceInCents(12000)
+                .priceInCents(120_00)
                 .taxonomy(MOBILE_INSURANCE)
+                .taxExempt(true)
                 .build());
 
         products.put(WIRED_EARPHONES, aProduct()
                 .productId(WIRED_EARPHONES)
                 .name("Wired Headphones")
-                .priceInCents(30000)
+                .priceInCents(30_00)
                 .taxonomy(EARPHONES)
                 .build());
 
         products.put(WIRELESS_EARPHONES, aProduct()
                 .productId(WIRELESS_EARPHONES)
                 .name("Wireless Headphones")
-                .priceInCents(50000)
+                .priceInCents(50_00)
                 .taxonomy(EARPHONES, WIRELESS)
                 .build());
     }

@@ -2,6 +2,7 @@ package duncan.atkinson.inventory;
 
 import org.junit.jupiter.api.Test;
 
+import static duncan.atkinson.inventory.Product.aProduct;
 import static duncan.atkinson.inventory.ProductId.PHONE_CASE;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,13 +10,16 @@ class ProductTest {
 
     @Test
     void should_construct() {
-        new Product(PHONE_CASE, "name", 100);
+        aValidProduct()
+                .build();
     }
 
     @Test
     void shouldNot_construct_given_nullProductId() {
         String message = assertThrows(IllegalArgumentException.class, () ->
-                new Product(null, "name", 100))
+                aValidProduct()
+                        .productId(null)
+                        .build())
                 .getMessage();
         assertEquals("productId shouldn't be null", message);
     }
@@ -23,8 +27,17 @@ class ProductTest {
     @Test
     void shouldNot_construct_given_nullPrice() {
         String message = assertThrows(IllegalArgumentException.class, () ->
-                new Product(PHONE_CASE, "name", null))
+                aValidProduct()
+                        .priceInCents(null)
+                        .build())
                 .getMessage();
         assertEquals("priceInCents shouldn't be null", message);
+    }
+
+    private Product.Builder aValidProduct() {
+        return aProduct()
+                .productId(PHONE_CASE)
+                .name("name")
+                .priceInCents(100);
     }
 }
