@@ -1,24 +1,28 @@
 package duncan.atkinson.basket;
 
-import duncan.atkinson.Product;
+import duncan.atkinson.inventory.ProductId;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * Holds the state of a shopping basket
+ */
 public class ShoppingBasket {
 
-    Map<Product, Integer> products = new HashMap<>();
+    /**
+     * Product and the count of the number of items of that product
+     */
+    private List<ProductId> products = new LinkedList<>();
 
-    public void addItem(Product product) {
-        products.put(product, 1);
+    public void addItem(ProductId productId) {
+        products.add(productId);
     }
 
-    public Set<Product> getProductsInBasket() {
-        return products.keySet();
+    public int countItemsInBasket() {
+        return products.size();
     }
 
-    public boolean hasProduct(Product product) {
-        return getProductsInBasket().contains(product);
+    public List<ProductId> getContents() {
+        return products;
     }
 }

@@ -1,12 +1,14 @@
 package duncan.atkinson;
 
 import duncan.atkinson.basket.ShoppingBasket;
+import duncan.atkinson.inventory.ProductId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static duncan.atkinson.Product.PHONE_CASE;
-import static duncan.atkinson.Product.WIRELESS_EARPHONES;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static duncan.atkinson.inventory.ProductId.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ShoppingBasketTest {
 
@@ -18,18 +20,34 @@ class ShoppingBasketTest {
     }
 
     @Test
-    void addItemsToBasket_should() {
-        basket.addItem(PHONE_CASE);
-        basket.addItem(WIRELESS_EARPHONES);
-        basket.addItem(WIRELESS_EARPHONES);
-
-        assertEquals(basket.getProductsInBasket().size(), 2);
+    void should_countItemsInBasket_given_EmptyBasket() {
+        assertEquals(0, basket.countItemsInBasket());
     }
 
     @Test
-    void hasProduct() {
+    void should_countItemsInBasket_given_SingleItemsOfDifferentProductsInBasket() {
+        basket.addItem(PHONE_CASE);
         basket.addItem(WIRELESS_EARPHONES);
-        assertTrue(basket.hasProduct(WIRELESS_EARPHONES));
-        assertFalse(basket.hasProduct(PHONE_CASE));
+        assertEquals(2, basket.countItemsInBasket());
+    }
+
+    @Test
+    void should_countItemsInBasket_given_MultipleItemsOfSameProductInBasket() {
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);
+        basket.addItem(PHONE_CASE);
+        basket.addItem(PHONE_CASE);
+        assertEquals(4, basket.countItemsInBasket());
+    }
+
+    @Test
+    void should_getContents_given_MultipleItemsOfSameProductInBasket() {
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);
+        basket.addItem(PHONE_CASE);
+        basket.addItem(PHONE_CASE);
+
+        List<ProductId> contents = basket.getContents();
+        assertEquals(4, contents.size());
     }
 }
