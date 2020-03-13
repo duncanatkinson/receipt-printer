@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static duncan.atkinson.inventory.ProductId.*;
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class CheckoutTest {
 
@@ -77,8 +78,8 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);//Free
         basket.addItem(SIM_CARD);
 
-        int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
-        assertEquals(40_00, totalBeforeTax);
+        int tax = checkout.calculateTotalBeforeTax(basket);
+        assertEquals(40_00, tax);
     }
 
     @Test
@@ -87,8 +88,8 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);//Free
         basket.addItem(SIM_CARD);
 
-        int totalBeforeTax = checkout.calculateTax(basket);
-        assertEquals(4_80, totalBeforeTax);
+        int tax = checkout.calculateTax(basket);
+        assertEquals(4_80, tax);
     }
 
     /**
@@ -115,5 +116,23 @@ class CheckoutTest {
 
         int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
         assertEquals(146_00, totalBeforeTax);
+    }
+
+    /**
+     * Same as above but wireless
+     */
+    @Test
+    void should_calculateTax_givenSpecialDiscountApplies() {
+        basket.addItem(PHONE_INSURANCE);// 120
+        basket.addItem(WIRELESS_EARPHONES);// 50
+        // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
+
+        int tax = checkout.calculateTax(basket);
+        assertEquals(6_00, tax);
+    }
+
+    @Test
+    void shouldFailTo_calculateTotalBeforeTax_given_breakingTheLaw() {
+        fail("the law prevents anyone buying more than 10 SIM cards in a single purchase");
     }
 }
