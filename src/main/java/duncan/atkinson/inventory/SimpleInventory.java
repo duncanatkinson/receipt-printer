@@ -39,8 +39,9 @@ public class SimpleInventory implements Inventory {
                 .productId(PHONE_INSURANCE)
                 .name("Phone Insurance")
                 .priceInCents(120_00)
-                .taxonomy(MOBILE_INSURANCE)
+                .taxonomy(INSURANCE)
                 .taxExempt(true)
+                .taxonomyDiscount(new TaxonomyDiscount(20, EARPHONES))
                 .build());
 
         products.put(WIRED_EARPHONES, aProduct()

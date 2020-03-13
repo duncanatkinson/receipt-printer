@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static duncan.atkinson.inventory.ProductId.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,5 +50,19 @@ class ShoppingBasketTest {
 
         List<ProductId> contents = basket.getContents();
         assertEquals(4, contents.size());
+    }
+
+    @Test
+    void should_getOrderLines_given_multipleProducts() {
+        basket.addItem(WIRED_EARPHONES);
+        basket.addItem(WIRELESS_EARPHONES);
+        basket.addItem(WIRED_EARPHONES);
+        basket.addItem(WIRELESS_EARPHONES);
+        basket.addItem(PHONE_CASE);
+
+        Map<ProductId, Long> countsOfProducts = basket.getOrderLines();
+        assertEquals(2,countsOfProducts.get(WIRED_EARPHONES).intValue());
+        assertEquals(2,countsOfProducts.get(WIRELESS_EARPHONES).intValue());
+        assertEquals(1,countsOfProducts.get(PHONE_CASE).intValue());
     }
 }

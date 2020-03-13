@@ -18,6 +18,8 @@ public class Product {
 
     private boolean buyOneGetOneFree;
 
+    private TaxonomyDiscount taxonomyDiscount;
+
     /**
      * A Set of tags which give the product properties
      */
@@ -31,7 +33,20 @@ public class Product {
         priceInCents = builder.priceInCents;
         taxExempt = builder.taxExempt;
         buyOneGetOneFree = builder.buyOneGetOneFree;
+        taxonomyDiscount = builder.taxonomyDiscount;
         taxonomy = builder.taxonomy;
+    }
+
+    public static Builder newBuilder(Product copy) {
+        Builder builder = new Builder();
+        builder.productId = copy.getProductId();
+        builder.name = copy.getName();
+        builder.priceInCents = copy.getPriceInCents();
+        builder.taxExempt = copy.getTaxExempt();
+        builder.buyOneGetOneFree = copy.getBuyOneGetOneFree();
+        builder.taxonomyDiscount = copy.getTaxonomyDiscount();
+        builder.taxonomy = copy.getTaxonomy();
+        return builder;
     }
 
     private void checkBuilderStateIsValid(Builder builder) {
@@ -45,17 +60,6 @@ public class Product {
 
     public static Builder newBuilder() {
         return new Builder();
-    }
-
-    public static Builder newBuilder(Product copy) {
-        Builder builder = new Builder();
-        builder.productId = copy.getProductId();
-        builder.name = copy.getName();
-        builder.priceInCents = copy.getPriceInCents();
-        builder.taxExempt = copy.getTaxExempt();
-        builder.buyOneGetOneFree = copy.getBuyOneGetOneFree();
-        builder.taxonomy = copy.getTaxonomy();
-        return builder;
     }
 
     public ProductId getProductId() {
@@ -80,6 +84,14 @@ public class Product {
 
     public boolean getBuyOneGetOneFree() {
         return buyOneGetOneFree;
+    }
+
+    public TaxonomyDiscount getTaxonomyDiscount() {
+        return taxonomyDiscount;
+    }
+
+    public boolean hasTaxonomyDiscount() {
+        return taxonomyDiscount != null;
     }
 
     @Override
@@ -115,6 +127,7 @@ public class Product {
         private Integer priceInCents;
         private boolean taxExempt;
         private boolean buyOneGetOneFree;
+        private TaxonomyDiscount taxonomyDiscount;
         private Taxonomy[] taxonomy;
 
         public Builder() {
@@ -147,6 +160,11 @@ public class Product {
 
         public Builder buyOneGetOneFree(boolean b) {
             buyOneGetOneFree = b;
+            return this;
+        }
+
+        public Builder taxonomyDiscount(TaxonomyDiscount val) {
+            taxonomyDiscount = val;
             return this;
         }
 

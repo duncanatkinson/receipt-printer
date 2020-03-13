@@ -4,6 +4,6 @@ public enum Taxonomy {
     EARPHONES,
     WIRELESS,
     MOBILE_SIM_CARD,
-    MOBILE_INSURANCE,
+    INSURANCE,
     MOBILE_PHONE_CASE
 }

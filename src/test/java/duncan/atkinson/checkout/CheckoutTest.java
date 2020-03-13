@@ -18,6 +18,7 @@ class CheckoutTest {
     private Checkout checkout;
 
     private static Inventory inventory = new SimpleInventory();
+    private ShoppingBasket basket;
 
     @BeforeAll
     static void beforeAll() {
@@ -27,11 +28,11 @@ class CheckoutTest {
     @BeforeEach
     void setUp() {
         this.checkout = new Checkout(inventory);
+        basket = new ShoppingBasket();
     }
 
     @Test
-    void should_calculateTotal_givenSingleSimpleItem() {
-        ShoppingBasket basket = new ShoppingBasket();
+    void should_calculateTotalBeforeTax_givenSingleSimpleItem() {
         basket.addItem(PHONE_CASE);
 
         int totalBeforeTaxInCents = checkout.calculateTotalBeforeTax(basket);
@@ -39,8 +40,7 @@ class CheckoutTest {
     }
 
     @Test
-    void should_calculateTotal_givenMultipleItems() {
-        ShoppingBasket basket = new ShoppingBasket();
+    void should_calculateTotalBeforeTax_givenMultipleItems() {
         basket.addItem(PHONE_CASE);
         range(0,10).forEach((i) -> basket.addItem(WIRED_EARPHONES));
 
@@ -49,8 +49,7 @@ class CheckoutTest {
     }
 
     @Test
-    void should_calculateTotal_givenTaxableItem() {
-        ShoppingBasket basket = new ShoppingBasket();
+    void should_calculateTax_givenTaxableItem() {
         basket.addItem(PHONE_CASE);// CHF10.00
 
         int tax = checkout.calculateTax(basket);
@@ -59,7 +58,6 @@ class CheckoutTest {
 
     @Test
     void should_calculateTax_givenNonTaxableItem() {
-        ShoppingBasket basket = new ShoppingBasket();
         basket.addItem(PHONE_INSURANCE);
 
         int tax = checkout.calculateTax(basket);
@@ -67,8 +65,7 @@ class CheckoutTest {
     }
 
     @Test
-    void should_calculateTotal_givenMixtureOfTaxableAndNonTaxableItems() {
-        ShoppingBasket basket = new ShoppingBasket();
+    void should_calculateTax_givenMixtureOfTaxableAndNonTaxableItems() {
         basket.addItem(PHONE_INSURANCE);
         basket.addItem(PHONE_CASE);
 
@@ -77,13 +74,35 @@ class CheckoutTest {
     }
 
     @Test
-    void should_calculateTotal_givenBOGOF() {
-        ShoppingBasket basket = new ShoppingBasket();
+    void should_calculateTotalBeforeTax_givenBOGOF() {
         basket.addItem(SIM_CARD);
         basket.addItem(SIM_CARD);//Free
         basket.addItem(SIM_CARD);
 
         int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
         assertEquals(40_00, totalBeforeTax);
+    }
+
+    @Test
+    void should_calculateTax_givenBOGOF() {
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);//Free
+        basket.addItem(SIM_CARD);
+
+        int totalBeforeTax = checkout.calculateTax(basket);
+        assertEquals(4_80, totalBeforeTax);
+    }
+
+    /**
+     * Special discount in this case is where a discount of 20% applies when buying earphones
+     */
+    @Test
+    void should_calculateTotalBeforeTax_givenSpecialDiscountApplies() {
+        basket.addItem(PHONE_INSURANCE);// 120
+        basket.addItem(WIRED_EARPHONES);// 30
+        // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
+
+        int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
+        assertEquals(126_00, totalBeforeTax);
     }
 }

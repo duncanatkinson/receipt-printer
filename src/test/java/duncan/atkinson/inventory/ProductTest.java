@@ -34,6 +34,22 @@ class ProductTest {
         assertEquals("priceInCents shouldn't be null", message);
     }
 
+    @Test
+    void should_haveTaxonomyDiscount_givenTaxonomyDiscount() {
+        Product product = aValidProduct()
+                .taxonomyDiscount(new TaxonomyDiscount(10, Taxonomy.WIRELESS))
+                .build();
+        assertTrue(product.hasTaxonomyDiscount());
+    }
+
+    @Test
+    void shouldNot_haveTaxonomyDiscount_givenTaxonomyDiscount() {
+        Product product = aValidProduct()
+                .taxonomyDiscount(null)
+                .build();
+        assertFalse(product.hasTaxonomyDiscount());
+    }
+
     private Product.Builder aValidProduct() {
         return aProduct()
                 .productId(PHONE_CASE)
