@@ -1,15 +1,18 @@
 package duncan.atkinson;
 
+import duncan.atkinson.basket.OrderLine;
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.inventory.ProductId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import static duncan.atkinson.inventory.ProductId.*;
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShoppingBasketTest {
 
@@ -60,9 +63,12 @@ class ShoppingBasketTest {
         basket.addItem(WIRELESS_EARPHONES);
         basket.addItem(PHONE_CASE);
 
-        Map<ProductId, Long> countsOfProducts = basket.getOrderLines();
-        assertEquals(2, countsOfProducts.get(WIRED_EARPHONES).intValue());
-        assertEquals(2, countsOfProducts.get(WIRELESS_EARPHONES).intValue());
-        assertEquals(1, countsOfProducts.get(PHONE_CASE).intValue());
+        Set<OrderLine> orderLines = basket.getOrderLines();
+        assertEquals(3, orderLines.size());
+        assertTrue(orderLines.containsAll(asList(
+                new OrderLine(WIRELESS_EARPHONES, 2),
+                new OrderLine(WIRED_EARPHONES, 2),
+                new OrderLine(PHONE_CASE, 1)
+        )));
     }
 }

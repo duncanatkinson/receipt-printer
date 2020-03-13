@@ -2,6 +2,8 @@ package duncan.atkinson.inventory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static duncan.atkinson.inventory.Product.aProduct;
 import static duncan.atkinson.inventory.ProductId.*;
@@ -62,5 +64,13 @@ public class SimpleInventory implements Inventory {
     @Override
     public Product get(ProductId productId) {
         return products.get(productId);
+    }
+
+    @Override
+    public Set<ProductId> getProductIdsWithTaxonomy(Taxonomy taxonomy) {
+        return products.values().stream()
+                .filter(product -> product.getTaxonomy().contains(taxonomy))
+                .map(Product::getProductId)
+                .collect(Collectors.toSet());
     }
 }

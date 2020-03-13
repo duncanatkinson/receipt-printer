@@ -96,7 +96,7 @@ class CheckoutTest {
      * Special discount in this case is where a discount of 20% applies when buying earphones
      */
     @Test
-    void should_calculateTotalBeforeTax_givenSpecialDiscountApplies() {
+    void should_calculateTotalBeforeTax_givenTaxonomyDiscountApplies() {
         basket.addItem(PHONE_INSURANCE);// 120
         basket.addItem(WIRED_EARPHONES);// 30
         // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
@@ -109,7 +109,7 @@ class CheckoutTest {
      * Same as above but wireless
      */
     @Test
-    void should_calculateTotalBeforeTax_givenSpecialDiscountApplies_butWireless() {
+    void should_calculateTotalBeforeTax_givenTaxonomyDiscountApplies_butWireless() {
         basket.addItem(PHONE_INSURANCE);// 120
         basket.addItem(WIRELESS_EARPHONES);// 50
         // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
@@ -118,11 +118,18 @@ class CheckoutTest {
         assertEquals(146_00, totalBeforeTax);
     }
 
-    /**
-     * Same as above but wireless
-     */
     @Test
-    void should_calculateTax_givenSpecialDiscountApplies() {
+    void should_calculateTotalBeforeTax_givenTaxonomyDiscountDoesNotApply() {
+        basket.addItem(PHONE_INSURANCE);// 120
+        basket.addItem(SIM_CARD);// 20
+
+        int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
+        assertEquals(140_00, totalBeforeTax);
+    }
+
+
+    @Test
+    void should_calculateTax_givenTaxonomyDiscountApplies() {
         basket.addItem(PHONE_INSURANCE);// 120
         basket.addItem(WIRELESS_EARPHONES);// 50
         // we expect a discount of 20% (24) on your phone insurance bringing it down to 96

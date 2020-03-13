@@ -1,17 +1,18 @@
 package duncan.atkinson.checkout;
 
+import duncan.atkinson.basket.OrderLine;
 import duncan.atkinson.basket.ShoppingBasket;
-import duncan.atkinson.inventory.*;
+import duncan.atkinson.inventory.Inventory;
+import duncan.atkinson.inventory.Product;
+import duncan.atkinson.inventory.ProductId;
+import duncan.atkinson.inventory.Taxonomy;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.Arrays.asList;
+import static java.util.Collections.disjoint;
 
 /**
  * ø
@@ -33,25 +34,27 @@ public class Checkout {
      */
     public int calculateTotalBeforeTax(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
-        return basket.getOrderLines().entrySet().stream()
+        return basket.getOrderLines().stream()
                 .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
                 .mapToInt(Integer::intValue)
                 .sum();
     }
 
-    private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException{
-        basket.getOrderLines().forEach((productId, itemCount) -> {
-            Product product = inventory.get(productId);
+    private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException {
+        basket.getOrderLines().forEach(orderLine -> {
+            Product product = inventory.get(orderLine.getProductId());
             Integer maximumPurchaseVolume = product.getMaximumPurchaseVolume();
-            if (maximumPurchaseVolume != null && itemCount > maximumPurchaseVolume) {
+
+            if (maximumPurchaseVolume != null && orderLine.getCount() > maximumPurchaseVolume) {
                 throw new CheckoutException(product.getProductId().name() + " purchase limit is 10");
             }
-        }); }
+        });
+    }
 
     public int calculateTax(ShoppingBasket basket) {
-        Map<ProductId, Long> orderLines = basket.getOrderLines();
-        int taxableSum = orderLines.entrySet().stream()
-                .filter(entry -> !taxExempt(entry.getKey()))
+        Set<OrderLine> orderLines = basket.getOrderLines();
+        int taxableSum = orderLines.stream()
+                .filter(taxApplies())
                 .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
                 .mapToInt(Integer::intValue)
                 .sum();
@@ -66,41 +69,44 @@ public class Checkout {
      * @param basket    used for discounts
      * @return the cost of those products.
      */
-    private int calculateCostOfOrderLine(Map.Entry<ProductId, Long> orderLine, ShoppingBasket basket) {
-        ProductId productId = orderLine.getKey();
+    private int calculateCostOfOrderLine(OrderLine orderLine, ShoppingBasket basket) {
+        ProductId productId = orderLine.getProductId();
         Product product = inventory.get(productId);
 
-        // adjustPriceFor BOGOF
-        int numberOfItems = orderLine.getValue().intValue();
-        numberOfItems = adjustCountIfBOGOF(orderLine, numberOfItems);
-        Integer priceInCents = product.getPriceInCents();
-        priceInCents = priceInCents * numberOfItems;
+        int numberOfItems = adjustCountIfBOGOF(orderLine);
+        int priceInCents = product.getPriceInCents() * numberOfItems;
 
-        // apply taxonomy discounts
-        if (product.hasTaxonomyDiscount() && taxonomyDiscountApplies(product.getTaxonomyDiscount(), basket)) {
-            priceInCents = (priceInCents / 100) * (100 - product.getTaxonomyDiscount().getPercentageDiscount());
+        priceInCents = applyTaxonomyDiscounts(basket, product, priceInCents);
+        return priceInCents;
+    }
+
+    private int applyTaxonomyDiscounts(ShoppingBasket basket, Product product, int priceInCents) {
+        if (product.hasTaxonomyDiscount()) {
+            Taxonomy taxonomyTriggeringDiscount = product.getTaxonomyDiscount().getTaxonomy();
+            Set<ProductId> productIdsInBasket = basket.getAllDistinctProductIds();
+            Set<ProductId> productIdsMatchingTaxonomy = inventory.getProductIdsWithTaxonomy(taxonomyTriggeringDiscount);
+            if (isIntersection(productIdsMatchingTaxonomy, productIdsInBasket)) {
+                priceInCents = (priceInCents / 100) * (100 - product.getTaxonomyDiscount().getPercentageDiscount());
+            }
         }
         return priceInCents;
     }
 
-    private boolean taxonomyDiscountApplies(TaxonomyDiscount taxonomyDiscount, ShoppingBasket basket) {
-        Set<Taxonomy> taxonomyInBasket = basket.getOrderLines().keySet().stream()
-                .map(inventory::get)
-                .map(Product::getTaxonomy)
-                .flatMap(Collection::stream)
-                .collect(toSet());
-        return taxonomyInBasket.contains(taxonomyDiscount.getTaxonomy());
+    private boolean isIntersection(Set<ProductId> set1, Set<ProductId> set2) {
+        return !disjoint(set2, set1);
     }
 
-    private int adjustCountIfBOGOF(Map.Entry<ProductId, Long> productAndCount, int count) {
-        if (inventory.get(productAndCount.getKey()).getBuyOneGetOneFree()) {
-            count = count / 2;
-            count += productAndCount.getValue().intValue() % 2;
+    private int adjustCountIfBOGOF(OrderLine orderLine) {
+        if (inventory.get(orderLine.getProductId()).getBuyOneGetOneFree()) {
+            int bogofCount = orderLine.getCount() / 2;
+            bogofCount += orderLine.getCount() % 2;
+            return bogofCount;
         }
-        return count;
+        return orderLine.getCount();
     }
 
-    private boolean taxExempt(ProductId productId) {
-        return inventory.get(productId).getTaxExempt();
+
+    private Predicate<OrderLine> taxApplies() {
+        return orderLine -> !inventory.get(orderLine.getProductId()).getTaxExempt();
     }
 }

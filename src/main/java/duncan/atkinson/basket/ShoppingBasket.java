@@ -1,14 +1,15 @@
 package duncan.atkinson.basket;
 
+import duncan.atkinson.inventory.Inventory;
+import duncan.atkinson.inventory.Product;
 import duncan.atkinson.inventory.ProductId;
+import duncan.atkinson.inventory.Taxonomy;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.*;
 
 /**
  * Holds the state of a shopping basket
@@ -33,12 +34,20 @@ public class ShoppingBasket {
     }
 
     /**
-     * TODO refactor from Map.Entry into OrderLines
-     *
      * @return orderLines consisting of the productId and a count of that product.
      */
-    public Map<ProductId, Long> getOrderLines() {
-        return products.stream()
+    public Set<OrderLine> getOrderLines() {
+        Map<ProductId, Long> countsByProductId = products.stream()
                 .collect(groupingBy(identity(), counting()));
+        return countsByProductId
+                .entrySet().stream()
+                .map(entry -> new OrderLine(entry.getKey(), entry.getValue().intValue()))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<ProductId> getAllDistinctProductIds() {
+        return this.getOrderLines().stream()
+                .map(OrderLine::getProductId)
+                .collect(toSet());
     }
 }
