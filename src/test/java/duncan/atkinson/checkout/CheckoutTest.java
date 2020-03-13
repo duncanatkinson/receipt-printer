@@ -103,4 +103,17 @@ class CheckoutTest {
         int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
         assertEquals(126_00, totalBeforeTax);
     }
+
+    /**
+     * Same as above but wireless
+     */
+    @Test
+    void should_calculateTotalBeforeTax_givenSpecialDiscountApplies_butWireless() {
+        basket.addItem(PHONE_INSURANCE);// 120
+        basket.addItem(WIRELESS_EARPHONES);// 50
+        // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
+
+        int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
+        assertEquals(146_00, totalBeforeTax);
+    }
 }

@@ -29,7 +29,7 @@ public class Checkout {
      */
     public int calculateTotalBeforeTax(ShoppingBasket basket) {
         return basket.getOrderLines().entrySet().stream()
-                .map(productAndCount -> calculateCostOfProducts(productAndCount, basket))
+                .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
                 .mapToInt(Integer::intValue)
                 .sum();
     }
@@ -38,7 +38,7 @@ public class Checkout {
         Map<ProductId, Long> orderLines = basket.getOrderLines();
         int taxableSum = orderLines.entrySet().stream()
                 .filter(entry -> !taxExempt(entry.getKey()))
-                .map(productAndCount -> calculateCostOfProducts(productAndCount, basket))
+                .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
                 .mapToInt(Integer::intValue)
                 .sum();
         return (taxableSum / 100) * TAX_RATE;
@@ -52,7 +52,7 @@ public class Checkout {
      * @param basket    used for discounts
      * @return the cost of those products.
      */
-    private int calculateCostOfProducts(Map.Entry<ProductId, Long> orderLine, ShoppingBasket basket) {
+    private int calculateCostOfOrderLine(Map.Entry<ProductId, Long> orderLine, ShoppingBasket basket) {
         ProductId productId = orderLine.getKey();
         Product product = inventory.get(productId);
 
