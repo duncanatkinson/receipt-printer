@@ -3,11 +3,15 @@ package duncan.atkinson.checkout;
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.inventory.*;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * ø
@@ -27,12 +31,22 @@ public class Checkout {
      * @param basket to calculate
      * @return the total cost of the contents of the basket in cents applying all discounts but without the tax
      */
-    public int calculateTotalBeforeTax(ShoppingBasket basket) {
+    public int calculateTotalBeforeTax(ShoppingBasket basket) throws CheckoutException {
+        checkMaxPurchaseLimitsNotHit(basket);
         return basket.getOrderLines().entrySet().stream()
                 .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
                 .mapToInt(Integer::intValue)
                 .sum();
     }
+
+    private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException{
+        basket.getOrderLines().forEach((productId, itemCount) -> {
+            Product product = inventory.get(productId);
+            Integer maximumPurchaseVolume = product.getMaximumPurchaseVolume();
+            if (maximumPurchaseVolume != null && itemCount > maximumPurchaseVolume) {
+                throw new CheckoutException(product.getProductId().name() + " purchase limit is 10");
+            }
+        }); }
 
     public int calculateTax(ShoppingBasket basket) {
         Map<ProductId, Long> orderLines = basket.getOrderLines();
@@ -72,8 +86,9 @@ public class Checkout {
     private boolean taxonomyDiscountApplies(TaxonomyDiscount taxonomyDiscount, ShoppingBasket basket) {
         Set<Taxonomy> taxonomyInBasket = basket.getOrderLines().keySet().stream()
                 .map(inventory::get)
-                .flatMap((Product product) -> stream(product.getTaxonomy()))
-                .collect(Collectors.toSet());
+                .map(Product::getTaxonomy)
+                .flatMap(Collection::stream)
+                .collect(toSet());
         return taxonomyInBasket.contains(taxonomyDiscount.getTaxonomy());
     }
 

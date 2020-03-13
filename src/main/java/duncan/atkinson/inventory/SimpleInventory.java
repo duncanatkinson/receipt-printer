@@ -32,6 +32,7 @@ public class SimpleInventory implements Inventory {
                 .priceInCents(20_00)
                 .taxonomy(MOBILE_SIM_CARD)
                 .buyOneGetOneFree(true)
+                .maximumPurchaseVolume(10)
                 .build());
 
         products.put(PHONE_INSURANCE, aProduct()

@@ -1,7 +1,6 @@
 package duncan.atkinson.inventory;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Defines a product which could be purchased.
@@ -20,11 +19,9 @@ public class Product {
 
     private TaxonomyDiscount taxonomyDiscount;
 
-    /**
-     * A Set of tags which give the product properties
-     */
-    private Taxonomy[] taxonomy;
+    private Integer maximumPurchaseVolume;
 
+    private Set<Taxonomy> taxonomy;
 
     private Product(Builder builder) {
         checkBuilderStateIsValid(builder);
@@ -35,31 +32,7 @@ public class Product {
         buyOneGetOneFree = builder.buyOneGetOneFree;
         taxonomyDiscount = builder.taxonomyDiscount;
         taxonomy = builder.taxonomy;
-    }
-
-    public static Builder newBuilder(Product copy) {
-        Builder builder = new Builder();
-        builder.productId = copy.getProductId();
-        builder.name = copy.getName();
-        builder.priceInCents = copy.getPriceInCents();
-        builder.taxExempt = copy.getTaxExempt();
-        builder.buyOneGetOneFree = copy.getBuyOneGetOneFree();
-        builder.taxonomyDiscount = copy.getTaxonomyDiscount();
-        builder.taxonomy = copy.getTaxonomy();
-        return builder;
-    }
-
-    private void checkBuilderStateIsValid(Builder builder) {
-        if (builder.productId == null) {
-            throw new IllegalArgumentException("productId shouldn't be null");
-        }
-        if (builder.priceInCents == null) {
-            throw new IllegalArgumentException("priceInCents shouldn't be null");
-        }
-    }
-
-    public static Builder newBuilder() {
-        return new Builder();
+        maximumPurchaseVolume = builder.maximumPurchaseVolume;
     }
 
     public ProductId getProductId() {
@@ -74,8 +47,12 @@ public class Product {
         return priceInCents;
     }
 
-    public Taxonomy[] getTaxonomy() {
-        return taxonomy;
+    public Set<Taxonomy> getTaxonomy() {
+        if(taxonomy == null){
+            return Collections.emptySet();
+        }else{
+            return taxonomy;
+        }
     }
 
     public boolean getTaxExempt() {
@@ -92,6 +69,19 @@ public class Product {
 
     public boolean hasTaxonomyDiscount() {
         return taxonomyDiscount != null;
+    }
+
+    public Integer getMaximumPurchaseVolume() {
+        return maximumPurchaseVolume;
+    }
+
+    private void checkBuilderStateIsValid(Builder builder) {
+        if (builder.productId == null) {
+            throw new IllegalArgumentException("productId shouldn't be null");
+        }
+        if (builder.priceInCents == null) {
+            throw new IllegalArgumentException("priceInCents shouldn't be null");
+        }
     }
 
     @Override
@@ -113,7 +103,7 @@ public class Product {
                 "productId=" + productId +
                 ", name='" + name + '\'' +
                 ", priceInCents=" + priceInCents +
-                ", taxonomy=" + Arrays.toString(taxonomy) +
+                ", taxonomy=" + taxonomy +
                 '}';
     }
 
@@ -128,7 +118,8 @@ public class Product {
         private boolean taxExempt;
         private boolean buyOneGetOneFree;
         private TaxonomyDiscount taxonomyDiscount;
-        private Taxonomy[] taxonomy;
+        private Integer maximumPurchaseVolume;
+        private Set<Taxonomy> taxonomy;
 
         public Builder() {
         }
@@ -154,7 +145,7 @@ public class Product {
         }
 
         public Builder taxonomy(Taxonomy... val) {
-            taxonomy = val;
+            this.taxonomy = new HashSet<>(Arrays.asList(val));
             return this;
         }
 
@@ -165,6 +156,11 @@ public class Product {
 
         public Builder taxonomyDiscount(TaxonomyDiscount val) {
             taxonomyDiscount = val;
+            return this;
+        }
+
+        public Builder maximumPurchaseVolume(Integer val) {
+            maximumPurchaseVolume = val;
             return this;
         }
 

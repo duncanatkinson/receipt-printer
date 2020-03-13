@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static duncan.atkinson.inventory.ProductId.*;
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CheckoutTest {
 
@@ -133,6 +133,10 @@ class CheckoutTest {
 
     @Test
     void shouldFailTo_calculateTotalBeforeTax_given_breakingTheLaw() {
-        fail("the law prevents anyone buying more than 10 SIM cards in a single purchase");
+        range(0, 11).forEach((i) -> basket.addItem(SIM_CARD));
+        String msg = assertThrows(CheckoutException.class, () -> {
+            checkout.calculateTotalBeforeTax(basket);
+        }).getMessage();
+        assertEquals("SIM_CARD purchase limit is 10", msg);
     }
 }

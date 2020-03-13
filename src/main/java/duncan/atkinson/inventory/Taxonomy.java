@@ -1,5 +1,8 @@
 package duncan.atkinson.inventory;
 
+/**
+ * A Set of tags which give the product properties
+ */
 public enum Taxonomy {
     EARPHONES,
     WIRELESS,
