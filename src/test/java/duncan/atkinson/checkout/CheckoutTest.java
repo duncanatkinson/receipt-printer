@@ -7,8 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.stream.IntStream;
-
 import static duncan.atkinson.inventory.ProductId.*;
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +40,7 @@ class CheckoutTest {
     @Test
     void should_calculateTotalBeforeTax_givenMultipleItems() {
         basket.addItem(PHONE_CASE);
-        range(0,10).forEach((i) -> basket.addItem(WIRED_EARPHONES));
+        range(0, 10).forEach((i) -> basket.addItem(WIRED_EARPHONES));
 
         int totalBeforeTax = checkout.calculateTotalBeforeTax(basket);
         assertEquals(310_00, totalBeforeTax);

@@ -61,8 +61,8 @@ class ShoppingBasketTest {
         basket.addItem(PHONE_CASE);
 
         Map<ProductId, Long> countsOfProducts = basket.getOrderLines();
-        assertEquals(2,countsOfProducts.get(WIRED_EARPHONES).intValue());
-        assertEquals(2,countsOfProducts.get(WIRELESS_EARPHONES).intValue());
-        assertEquals(1,countsOfProducts.get(PHONE_CASE).intValue());
+        assertEquals(2, countsOfProducts.get(WIRED_EARPHONES).intValue());
+        assertEquals(2, countsOfProducts.get(WIRELESS_EARPHONES).intValue());
+        assertEquals(1, countsOfProducts.get(PHONE_CASE).intValue());
     }
 }

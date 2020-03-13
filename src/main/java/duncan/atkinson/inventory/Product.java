@@ -50,10 +50,10 @@ public class Product {
     }
 
     private void checkBuilderStateIsValid(Builder builder) {
-        if(builder.productId == null){
+        if (builder.productId == null) {
             throw new IllegalArgumentException("productId shouldn't be null");
         }
-        if(builder.priceInCents == null){
+        if (builder.priceInCents == null) {
             throw new IllegalArgumentException("priceInCents shouldn't be null");
         }
     }
@@ -117,7 +117,7 @@ public class Product {
                 '}';
     }
 
-    public static Builder aProduct(){
+    public static Builder aProduct() {
         return new Builder();
     }
 

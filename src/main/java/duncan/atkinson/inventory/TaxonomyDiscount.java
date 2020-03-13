@@ -13,7 +13,7 @@ public class TaxonomyDiscount {
     Taxonomy taxonomy;
 
     public TaxonomyDiscount(int percentageDiscount, Taxonomy taxonomy) {
-        if(taxonomy == null){
+        if (taxonomy == null) {
             throw new IllegalArgumentException("taxonomy cannot be null");
         }
         this.percentageDiscount = percentageDiscount;

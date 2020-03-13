@@ -3,16 +3,14 @@ package duncan.atkinson.checkout;
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.inventory.*;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.groupingBy;
 
 /**
+ * ø
  * Calculates the cost of a shopping basket
  * TODO return a Currency object
  */
@@ -51,7 +49,7 @@ public class Checkout {
      * note this isn't just a simple sum, because it is possible discounts apply.
      *
      * @param orderLine is a map entry consisting of the product ID and the count of that product.
-     * @param basket
+     * @param basket    used for discounts
      * @return the cost of those products.
      */
     private int calculateCostOfProducts(Map.Entry<ProductId, Long> orderLine, ShoppingBasket basket) {
@@ -66,7 +64,7 @@ public class Checkout {
 
         // apply taxonomy discounts
         if (product.hasTaxonomyDiscount() && taxonomyDiscountApplies(product.getTaxonomyDiscount(), basket)) {
-            priceInCents = (priceInCents /100) * (100 - product.getTaxonomyDiscount().getPercentageDiscount());
+            priceInCents = (priceInCents / 100) * (100 - product.getTaxonomyDiscount().getPercentageDiscount());
         }
         return priceInCents;
     }

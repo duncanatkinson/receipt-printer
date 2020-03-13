@@ -2,8 +2,9 @@ package duncan.atkinson.basket;
 
 import duncan.atkinson.inventory.ProductId;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.counting;
@@ -33,9 +34,10 @@ public class ShoppingBasket {
 
     /**
      * TODO refactor from Map.Entry into OrderLines
+     *
      * @return orderLines consisting of the productId and a count of that product.
      */
-    public Map<ProductId,Long> getOrderLines() {
+    public Map<ProductId, Long> getOrderLines() {
         return products.stream()
                 .collect(groupingBy(identity(), counting()));
     }

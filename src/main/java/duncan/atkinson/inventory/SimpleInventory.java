@@ -10,14 +10,13 @@ import static duncan.atkinson.inventory.Taxonomy.*;
 /**
  * Simple store of products we can sell indexed by {@link ProductId}
  * Expected to be replaced with a persistent store of some kind.
- *
  */
 public class SimpleInventory implements Inventory {
 
     private Map<ProductId, Product> products;
 
     @Override
-    public void init(){
+    public void init() {
         products = new HashMap<>();
 
         products.put(PHONE_CASE, aProduct()
