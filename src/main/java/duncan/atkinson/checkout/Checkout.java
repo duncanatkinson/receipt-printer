@@ -7,15 +7,13 @@ import duncan.atkinson.inventory.Product;
 import duncan.atkinson.inventory.ProductId;
 import duncan.atkinson.inventory.Taxonomy;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.disjoint;
 
 /**
- * ø
  * Calculates the cost of a shopping basket
  * TODO return a Currency object
  */
@@ -28,6 +26,7 @@ public class Checkout {
         this.inventory = inventory;
     }
 
+
     /**
      * @param basket to calculate
      * @return the total cost of the contents of the basket in cents applying all discounts but without the tax
@@ -35,7 +34,7 @@ public class Checkout {
     public int calculateTotalBeforeTax(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
         return basket.getOrderLines().stream()
-                .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
+                .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
                 .mapToInt(Integer::intValue)
                 .sum();
     }
@@ -54,10 +53,15 @@ public class Checkout {
     public int calculateTax(ShoppingBasket basket) {
         Set<OrderLine> orderLines = basket.getOrderLines();
         int taxableSum = orderLines.stream()
-                .filter(taxApplies())
-                .map(productAndCount -> calculateCostOfOrderLine(productAndCount, basket))
+                .filter(this::taxApplies)
+                .map(orderLine -> calculateCost(orderLine, basket))
+                .map(costResult -> costResult.costInCents)
                 .mapToInt(Integer::intValue)
                 .sum();
+        return calculateTax(taxableSum);
+    }
+
+    private int calculateTax(int taxableSum) {
         return (taxableSum / 100) * TAX_RATE;
     }
 
@@ -69,15 +73,25 @@ public class Checkout {
      * @param basket    used for discounts
      * @return the cost of those products.
      */
-    private int calculateCostOfOrderLine(OrderLine orderLine, ShoppingBasket basket) {
+    private CostResult calculateCost(OrderLine orderLine, ShoppingBasket basket) {
         ProductId productId = orderLine.getProductId();
         Product product = inventory.get(productId);
-
+        int beforeDiscountCost = product.getPriceInCents() * orderLine.getCount();
         int numberOfItems = adjustCountIfBOGOF(orderLine);
-        int priceInCents = product.getPriceInCents() * numberOfItems;
+        int actualCost = product.getPriceInCents() * numberOfItems;
 
-        priceInCents = applyTaxonomyDiscounts(basket, product, priceInCents);
-        return priceInCents;
+        actualCost = applyTaxonomyDiscounts(basket, product, actualCost);
+        return new CostResult(actualCost, beforeDiscountCost - actualCost);
+    }
+
+    private class CostResult {
+        private int costInCents;
+        private int discountAmount;
+
+        public CostResult(int costInCents, int discountAmount) {
+            this.costInCents = costInCents;
+            this.discountAmount = discountAmount;
+        }
     }
 
     private int applyTaxonomyDiscounts(ShoppingBasket basket, Product product, int priceInCents) {
@@ -106,7 +120,27 @@ public class Checkout {
     }
 
 
-    private Predicate<OrderLine> taxApplies() {
-        return orderLine -> !inventory.get(orderLine.getProductId()).getTaxExempt();
+    private boolean taxApplies(OrderLine orderLine) {
+        return !inventory.get(orderLine.getProductId()).getTaxExempt();
+    }
+
+    public Receipt checkout(ShoppingBasket basket) {
+        List<ReceiptLine> lines = basket.getOrderLines().stream()
+                .map(orderLine -> calculate(orderLine, basket))
+                .collect(Collectors.toList());
+        return new Receipt(lines);
+    }
+
+    private ReceiptLine calculate(OrderLine orderLine, ShoppingBasket basket) {
+        CostResult costResult = calculateCost(orderLine, basket);
+        int tax = 0;
+        if (taxApplies(orderLine)) {
+            tax = calculateTax(costResult.costInCents);
+        }
+        String productDescription = inventory.get(orderLine.getProductId()).getName();
+        if(orderLine.getCount() > 1){
+            productDescription += " * " + orderLine.getCount();
+        }
+        return new ReceiptLine(productDescription, costResult.costInCents, tax, costResult.discountAmount);
     }
 }

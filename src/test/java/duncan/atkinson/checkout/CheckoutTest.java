@@ -146,4 +146,23 @@ class CheckoutTest {
         }).getMessage();
         assertEquals("SIM_CARD purchase limit is 10", msg);
     }
+
+    @Test
+    void should_checkout_givenSingleSimCard() {
+        basket.addItem(SIM_CARD);
+        Receipt receipt = checkout.checkout(basket);
+
+        assertEquals(new ReceiptLine("Sim Card", 2000, 240, 0), receipt.getLines().get(0));
+    }
+
+    @Test
+    void should_checkout_givenMultipleSimCards() {
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);
+        Receipt receipt = checkout.checkout(basket);
+
+        ReceiptLine actual = receipt.getLines().get(0);
+        assertEquals(new ReceiptLine("Sim Card * 3", 4000, 480, 2000), actual);
+    }
 }
