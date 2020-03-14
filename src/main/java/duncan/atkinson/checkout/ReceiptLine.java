@@ -3,10 +3,10 @@ package duncan.atkinson.checkout;
 import java.util.Objects;
 
 public class ReceiptLine {
-    private String productDescription;
-    private int cost;
-    private int tax;
-    private int discountAmount;
+    private final String productDescription;
+    private final int cost;
+    private final int tax;
+    private final int discountAmount;
 
     public ReceiptLine(String productDescription, int cost, int tax, int discountAmount) {
         this.productDescription = productDescription;

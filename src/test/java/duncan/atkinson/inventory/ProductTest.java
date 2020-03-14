@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import static duncan.atkinson.inventory.Product.aProduct;
 import static duncan.atkinson.inventory.ProductId.PHONE_CASE;
+import static duncan.atkinson.inventory.Taxonomy.EARPHONES;
+import static duncan.atkinson.inventory.Taxonomy.INSURANCE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductTest {
@@ -48,6 +50,24 @@ class ProductTest {
                 .taxonomyDiscount(null)
                 .build();
         assertFalse(product.hasTaxonomyDiscount());
+    }
+
+    @Test
+    void taxonomy_shouldThrowUnmodifiable_givenEmptySet() {
+        assertThrows(UnsupportedOperationException.class, () ->
+                aValidProduct()
+                        .build().getTaxonomy().add(INSURANCE)
+        );
+    }
+
+    @Test
+    void taxonomy_shouldThrowUnmodifiable_givenExistingSet() {
+        assertThrows(UnsupportedOperationException.class, () ->
+                aValidProduct()
+                        .taxonomy(EARPHONES)
+                        .build()
+                        .getTaxonomy().add(INSURANCE)
+        );
     }
 
     private Product.Builder aValidProduct() {

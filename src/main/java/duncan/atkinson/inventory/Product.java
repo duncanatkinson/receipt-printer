@@ -2,26 +2,28 @@ package duncan.atkinson.inventory;
 
 import java.util.*;
 
+import static java.util.Collections.unmodifiableSet;
+
 /**
  * Defines a product which could be purchased.
  */
 public class Product {
 
-    private ProductId productId;
+    private final ProductId productId;
 
-    private String name;
+    private final String name;
 
-    private Integer priceInCents;
+    private final Integer priceInCents;
 
-    private boolean taxExempt;
+    private final boolean taxExempt;
 
-    private boolean buyOneGetOneFree;
+    private final boolean buyOneGetOneFree;
 
-    private TaxonomyDiscount taxonomyDiscount;
+    private final TaxonomyDiscount taxonomyDiscount;
 
-    private Integer maximumPurchaseVolume;
+    private final Integer maximumPurchaseVolume;
 
-    private Set<Taxonomy> taxonomy;
+    private final Set<Taxonomy> taxonomy;
 
     private Product(Builder builder) {
         checkBuilderStateIsValid(builder);
@@ -51,7 +53,7 @@ public class Product {
         if(taxonomy == null){
             return Collections.emptySet();
         }else{
-            return taxonomy;
+            return unmodifiableSet(taxonomy);
         }
     }
 

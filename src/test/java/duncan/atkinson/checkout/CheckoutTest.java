@@ -162,7 +162,7 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);
         Receipt receipt = checkout.checkout(basket);
 
-        ReceiptLine actual = receipt.getLines().get(0);
-        assertEquals(new ReceiptLine("Sim Card * 3", 4000, 480, 2000), actual);
+        ReceiptLine first = receipt.getLines().get(0);
+        assertEquals(new ReceiptLine("Sim Card * 3", 4000, 480, 2000), first);
     }
 }
