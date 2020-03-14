@@ -1,10 +1,12 @@
 package duncan.atkinson.checkout;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
-import static java.math.RoundingMode.HALF_UP;
-
+/**
+ * Object to hold data
+ */
 public class Receipt {
 
     private List<ReceiptLine> lines;
@@ -20,7 +22,7 @@ public class Receipt {
     }
 
     public List<ReceiptLine> getLines() {
-        return lines;
+        return Collections.unmodifiableList(lines);
     }
 
     public BigDecimal getTaxAmount() {
@@ -29,16 +31,5 @@ public class Receipt {
 
     public BigDecimal getTotalCost() {
         return totalCost;
-    }
-
-    /**
-     * @return amount of tax for the whole receipt in cents
-     */
-    private BigDecimal getTax() {
-        return lines.stream()
-                .map(ReceiptLine::getTax)
-                .reduce(BigDecimal::add)
-                .orElse(new BigDecimal(0))
-                .setScale(2, HALF_UP);
     }
 }

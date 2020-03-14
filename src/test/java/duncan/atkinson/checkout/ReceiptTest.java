@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ReceiptTest {
 
@@ -19,6 +20,13 @@ class ReceiptTest {
     void should_getTaxAmount() {
         Receipt receipt = aReceipt();
         assertEquals("1.80", receipt.getTaxAmount().toString());
+    }
+
+    @Test
+    void getLines_should_returnImmutableList() {
+        assertThrows(UnsupportedOperationException.class, () ->{
+            aReceipt().getLines().add(new ReceiptLine("a", 10_00, new BigDecimal("120"), 0));
+        });
     }
 
     private Receipt aReceipt() {
