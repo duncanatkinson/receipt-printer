@@ -10,4 +10,6 @@ public enum ProductId {
     PHONE_INSURANCE,
     WIRED_EARPHONES,
     WIRELESS_EARPHONES,
+    ;
+
 }

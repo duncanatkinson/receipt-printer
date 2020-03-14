@@ -10,21 +10,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ReceiptTest {
 
     @Test
-    void should_getTotalAsFormattedPrice() {
+    void should_getTotalCost() {
         Receipt receipt = aReceipt();
-        assertEquals("16.80 CHF", receipt.getTotalAsFormattedPrice());
+        assertEquals("16.80", receipt.getTotalCost().toString());
     }
 
     @Test
-    void should_getTaxAsFormattedPrice() {
+    void should_getTaxAmount() {
         Receipt receipt = aReceipt();
-        assertEquals("1.80 CHF", receipt.getTaxAsFormattedPrice());
+        assertEquals("1.80", receipt.getTaxAmount().toString());
     }
 
     private Receipt aReceipt() {
         return new Receipt(asList(
                 new ReceiptLine("a", 10_00, new BigDecimal("120"), 0),
                 new ReceiptLine("b", 5_00, new BigDecimal("60"), 0)
-        ));
+        ), new BigDecimal("16.80"), new BigDecimal("1.80"));
     }
 }

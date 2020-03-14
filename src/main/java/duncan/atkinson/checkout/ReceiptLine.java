@@ -1,7 +1,12 @@
 package duncan.atkinson.checkout;
 
+import javax.swing.text.NumberFormatter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.Objects;
+
+import static java.math.RoundingMode.HALF_UP;
 
 public class ReceiptLine {
     private final String productDescription;
@@ -9,11 +14,16 @@ public class ReceiptLine {
     private final BigDecimal tax;
     private final int discountAmount;
 
+    private final NumberFormat priceFormat;
+
     public ReceiptLine(String productDescription, int cost, BigDecimal tax, int discountAmount) {
         this.productDescription = productDescription;
         this.cost = cost;
         this.tax = tax;
         this.discountAmount = discountAmount;
+        priceFormat =  NumberFormat.getInstance();
+        priceFormat.setGroupingUsed(true);
+        priceFormat.setMinimumFractionDigits(2);
     }
 
     public String getProductDescription() {
@@ -24,8 +34,11 @@ public class ReceiptLine {
         return cost;
     }
 
+    @Deprecated
     public String getFormattedCost() {
-        return cost / 100d + " CHF";
+        BigDecimal costAsBigDecimal = new BigDecimal(cost).setScale(2,HALF_UP);
+        double wholeUnits = costAsBigDecimal.divide(new BigDecimal(100), HALF_UP).doubleValue();
+        return priceFormat.format(wholeUnits) + " CHF";
     }
 
     public BigDecimal getTax() {

@@ -8,7 +8,6 @@ import duncan.atkinson.inventory.ProductId;
 import duncan.atkinson.inventory.Taxonomy;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,12 +33,13 @@ public class Checkout {
      * @param basket to calculate
      * @return the total cost of the contents of the basket in cents applying all discounts but without the tax
      */
-    public int calculateCost(ShoppingBasket basket) throws CheckoutException {
+    protected BigDecimal calculateCost(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
-        return basket.getOrderLines().stream()
+        int cost = basket.getOrderLines().stream()
                 .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
                 .mapToInt(Integer::intValue)
                 .sum();
+        return new BigDecimal(cost);
     }
 
     private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException {
@@ -65,7 +65,6 @@ public class Checkout {
     }
 
     /**
-     *
      * @param taxableSum
      * @return
      */
@@ -134,10 +133,11 @@ public class Checkout {
     }
 
     public Receipt checkout(ShoppingBasket basket) {
+        checkMaxPurchaseLimitsNotHit(basket);
         List<ReceiptLine> lines = basket.getOrderLines().stream()
                 .map(orderLine -> calculate(orderLine, basket))
                 .collect(Collectors.toList());
-        return new Receipt(lines);
+        return new Receipt(lines, calculateCost(basket), calculateTax(basket));
     }
 
     private ReceiptLine calculate(OrderLine orderLine, ShoppingBasket basket) {
@@ -147,7 +147,7 @@ public class Checkout {
             tax = calculateTax(costResult.costInCents);
         }
         String productDescription = inventory.get(orderLine.getProductId()).getName();
-        if(orderLine.getCount() > 1){
+        if (orderLine.getCount() > 1) {
             productDescription += " * " + orderLine.getCount();
         }
         return new ReceiptLine(productDescription, costResult.costInCents, tax, costResult.discountAmount);
