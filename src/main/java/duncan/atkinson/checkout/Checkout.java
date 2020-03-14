@@ -7,10 +7,13 @@ import duncan.atkinson.inventory.Product;
 import duncan.atkinson.inventory.ProductId;
 import duncan.atkinson.inventory.Taxonomy;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.math.RoundingMode.HALF_UP;
 import static java.util.Collections.disjoint;
 
 /**
@@ -19,7 +22,7 @@ import static java.util.Collections.disjoint;
  */
 public class Checkout {
 
-    private static final Integer TAX_RATE = 12;
+    private static final double TAX_RATE = 12.0;
     private final Inventory inventory;
 
     public Checkout(Inventory inventory) {
@@ -31,7 +34,7 @@ public class Checkout {
      * @param basket to calculate
      * @return the total cost of the contents of the basket in cents applying all discounts but without the tax
      */
-    public int calculateTotalBeforeTax(ShoppingBasket basket) throws CheckoutException {
+    public int calculateCost(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
         return basket.getOrderLines().stream()
                 .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
@@ -50,7 +53,7 @@ public class Checkout {
         });
     }
 
-    public int calculateTax(ShoppingBasket basket) {
+    public BigDecimal calculateTax(ShoppingBasket basket) {
         Set<OrderLine> orderLines = basket.getOrderLines();
         int taxableSum = orderLines.stream()
                 .filter(this::taxApplies)
@@ -61,8 +64,14 @@ public class Checkout {
         return calculateTax(taxableSum);
     }
 
-    private int calculateTax(int taxableSum) {
-        return (taxableSum / 100) * TAX_RATE;
+    /**
+     *
+     * @param taxableSum
+     * @return
+     */
+    private BigDecimal calculateTax(int taxableSum) {
+        BigDecimal tax = new BigDecimal(taxableSum).multiply(new BigDecimal(TAX_RATE));
+        return tax.divide(new BigDecimal(100), HALF_UP);
     }
 
     /**
@@ -133,7 +142,7 @@ public class Checkout {
 
     private ReceiptLine calculate(OrderLine orderLine, ShoppingBasket basket) {
         CostResult costResult = calculateCost(orderLine, basket);
-        int tax = 0;
+        BigDecimal tax = new BigDecimal(0);
         if (taxApplies(orderLine)) {
             tax = calculateTax(costResult.costInCents);
         }

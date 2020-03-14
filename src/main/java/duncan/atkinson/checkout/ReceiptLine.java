@@ -1,14 +1,15 @@
 package duncan.atkinson.checkout;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ReceiptLine {
     private final String productDescription;
     private final int cost;
-    private final int tax;
+    private final BigDecimal tax;
     private final int discountAmount;
 
-    public ReceiptLine(String productDescription, int cost, int tax, int discountAmount) {
+    public ReceiptLine(String productDescription, int cost, BigDecimal tax, int discountAmount) {
         this.productDescription = productDescription;
         this.cost = cost;
         this.tax = tax;
@@ -23,7 +24,11 @@ public class ReceiptLine {
         return cost;
     }
 
-    public int getTax() {
+    public String getFormattedCost() {
+        return cost / 100d + " CHF";
+    }
+
+    public BigDecimal getTax() {
         return tax;
     }
 
@@ -37,9 +42,9 @@ public class ReceiptLine {
         if (o == null || getClass() != o.getClass()) return false;
         ReceiptLine that = (ReceiptLine) o;
         return cost == that.cost &&
-                tax == that.tax &&
                 discountAmount == that.discountAmount &&
-                Objects.equals(productDescription, that.productDescription);
+                Objects.equals(productDescription, that.productDescription) &&
+                Objects.equals(tax, that.tax);
     }
 
     @Override

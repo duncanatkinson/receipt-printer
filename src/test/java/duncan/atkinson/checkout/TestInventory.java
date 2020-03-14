@@ -1,30 +1,23 @@
-package duncan.atkinson.inventory;
+package duncan.atkinson.checkout;
+
+import duncan.atkinson.inventory.SimpleInventory;
+import duncan.atkinson.inventory.TaxonomyDiscount;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static duncan.atkinson.inventory.Product.aProduct;
 import static duncan.atkinson.inventory.ProductId.*;
 import static duncan.atkinson.inventory.Taxonomy.*;
 
-/**
- * Simple store of products we can sell indexed by {@link ProductId}
- * Expected to be replaced with a persistent store of some kind.
- */
-public class SimpleInventory implements Inventory {
-
-    protected Map<ProductId, Product> products;
-
+class TestInventory extends SimpleInventory {
     @Override
     public void init() {
-        products = new HashMap<>();
+        this.products = new HashMap<>();
 
         products.put(PHONE_CASE, aProduct()
                 .productId(PHONE_CASE)
                 .name("Phone Case")
-                .priceInCents(10_00)
+                .priceInCents(9)
                 .taxonomy(MOBILE_PHONE_CASE)
                 .build());
 
@@ -59,18 +52,5 @@ public class SimpleInventory implements Inventory {
                 .priceInCents(50_00)
                 .taxonomy(EARPHONES, WIRELESS)
                 .build());
-    }
-
-    @Override
-    public Product get(ProductId productId) {
-        return products.get(productId);
-    }
-
-    @Override
-    public Set<ProductId> getProductIdsWithTaxonomy(Taxonomy taxonomy) {
-        return products.values().stream()
-                .filter(product -> product.getTaxonomy().contains(taxonomy))
-                .map(Product::getProductId)
-                .collect(Collectors.toSet());
     }
 }
