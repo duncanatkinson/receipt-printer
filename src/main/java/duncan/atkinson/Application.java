@@ -2,8 +2,8 @@ package duncan.atkinson;
 
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.checkout.Checkout;
-import duncan.atkinson.checkout.Receipt;
 import duncan.atkinson.checkout.ReceiptPrinter;
+import duncan.atkinson.dataobjects.Receipt;
 import duncan.atkinson.inventory.Inventory;
 import duncan.atkinson.inventory.ProductId;
 import duncan.atkinson.inventory.SimpleInventory;

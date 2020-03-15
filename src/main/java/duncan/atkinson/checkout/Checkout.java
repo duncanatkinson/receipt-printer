@@ -1,7 +1,9 @@
 package duncan.atkinson.checkout;
 
-import duncan.atkinson.basket.OrderLine;
 import duncan.atkinson.basket.ShoppingBasket;
+import duncan.atkinson.dataobjects.OrderLine;
+import duncan.atkinson.dataobjects.Receipt;
+import duncan.atkinson.dataobjects.ReceiptLine;
 import duncan.atkinson.inventory.Inventory;
 import duncan.atkinson.inventory.Product;
 import duncan.atkinson.inventory.ProductId;
@@ -35,11 +37,21 @@ public class Checkout {
      */
     protected BigDecimal calculateCost(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
-        int cost = basket.getOrderLines().stream()
+        return basket.getOrderLines().stream()
                 .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
-                .mapToInt(Integer::intValue)
-                .sum();
-        return new BigDecimal(cost);
+                .reduce(BigDecimal::add)
+                .orElse(new BigDecimal(0));
+    }
+
+    public BigDecimal calculateTax(ShoppingBasket basket) {
+        Set<OrderLine> orderLines = basket.getOrderLines();
+        BigDecimal taxableSum = orderLines.stream()
+                .filter(this::taxApplies)
+                .map(orderLine -> calculateCost(orderLine, basket))
+                .map(costResult -> costResult.costInCents)
+                .reduce(BigDecimal::add)
+                .orElse(new BigDecimal(0));
+        return calculateTax(taxableSum);
     }
 
     private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException {
@@ -53,23 +65,12 @@ public class Checkout {
         });
     }
 
-    public BigDecimal calculateTax(ShoppingBasket basket) {
-        Set<OrderLine> orderLines = basket.getOrderLines();
-        int taxableSum = orderLines.stream()
-                .filter(this::taxApplies)
-                .map(orderLine -> calculateCost(orderLine, basket))
-                .map(costResult -> costResult.costInCents)
-                .mapToInt(Integer::intValue)
-                .sum();
-        return calculateTax(taxableSum);
-    }
-
     /**
      * @param taxableSum
-     * @return
+     * @return tax payable on sum
      */
-    private BigDecimal calculateTax(int taxableSum) {
-        BigDecimal tax = new BigDecimal(taxableSum).multiply(new BigDecimal(TAX_RATE));
+    private BigDecimal calculateTax(BigDecimal taxableSum) {
+        BigDecimal tax = taxableSum.multiply(new BigDecimal(TAX_RATE));
         return tax.divide(new BigDecimal(100), HALF_UP);
     }
 
@@ -89,14 +90,17 @@ public class Checkout {
         int actualCost = product.getPriceInCents() * numberOfItems;
 
         actualCost = applyTaxonomyDiscounts(basket, product, actualCost);
-        return new CostResult(actualCost, beforeDiscountCost - actualCost);
+        return new CostResult(new BigDecimal(actualCost), new BigDecimal(beforeDiscountCost - actualCost));
     }
 
-    private class CostResult {
-        private int costInCents;
-        private int discountAmount;
+    /**
+     * Just a small private internal class to hold the cost of an {@link OrderLine}
+     */
+    private static class CostResult {
+        private BigDecimal costInCents;
+        private BigDecimal discountAmount;
 
-        public CostResult(int costInCents, int discountAmount) {
+        public CostResult(BigDecimal costInCents, BigDecimal discountAmount) {
             this.costInCents = costInCents;
             this.discountAmount = discountAmount;
         }

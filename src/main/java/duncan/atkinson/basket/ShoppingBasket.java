@@ -1,11 +1,12 @@
 package duncan.atkinson.basket;
 
-import duncan.atkinson.inventory.Inventory;
-import duncan.atkinson.inventory.Product;
+import duncan.atkinson.dataobjects.OrderLine;
 import duncan.atkinson.inventory.ProductId;
-import duncan.atkinson.inventory.Taxonomy;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;

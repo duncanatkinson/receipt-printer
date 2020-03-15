@@ -1,4 +1,4 @@
-package duncan.atkinson.checkout;
+package duncan.atkinson.dataobjects;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,15 +24,15 @@ class ReceiptTest {
 
     @Test
     void getLines_should_returnImmutableList() {
-        assertThrows(UnsupportedOperationException.class, () ->{
-            aReceipt().getLines().add(new ReceiptLine("a", 10_00, new BigDecimal("120"), 0));
+        assertThrows(UnsupportedOperationException.class, () -> {
+            aReceipt().getLines().add(new ReceiptLine("a", new BigDecimal(10_00), new BigDecimal("120"), new BigDecimal(0)));
         });
     }
 
     private Receipt aReceipt() {
         return new Receipt(asList(
-                new ReceiptLine("a", 10_00, new BigDecimal("120"), 0),
-                new ReceiptLine("b", 5_00, new BigDecimal("60"), 0)
+                new ReceiptLine("a", new BigDecimal(10_00), new BigDecimal("120"), new BigDecimal(0)),
+                new ReceiptLine("b", new BigDecimal(5_00), new BigDecimal("60"), new BigDecimal(0))
         ), new BigDecimal("16.80"), new BigDecimal("1.80"));
     }
 }

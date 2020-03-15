@@ -1,5 +1,8 @@
 package duncan.atkinson.checkout;
 
+import duncan.atkinson.dataobjects.Receipt;
+import duncan.atkinson.dataobjects.ReceiptLine;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
@@ -72,7 +75,7 @@ public class ReceiptPrinter {
     }
 
     private void outPutItemLine(StringBuilder output, ReceiptLine line) {
-        String amount = line.getFormattedCost();
+        String amount = formatPrice(line.getCost());
         String formattedLineItem = insertPadding(line.getProductDescription(), amount);
         output.append(formattedLineItem);
         output.append(lineSeparator());

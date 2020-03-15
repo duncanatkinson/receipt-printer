@@ -1,6 +1,8 @@
 package duncan.atkinson.checkout;
 
 import duncan.atkinson.basket.ShoppingBasket;
+import duncan.atkinson.dataobjects.Receipt;
+import duncan.atkinson.dataobjects.ReceiptLine;
 import duncan.atkinson.inventory.Inventory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,15 +75,15 @@ class CheckoutTest {
         assertEquals(new BigDecimal(6_00), tax);
     }
 
-//    @Test
-//    void should_calculateCost_givenBOGOF() {
-//        basket.addItem(SIM_CARD);
-//        basket.addItem(SIM_CARD);//Free
-//        basket.addItem(SIM_CARD);
-//
-//        int cost = checkout.calculateCost(basket);
-//        assertEquals(40_00, cost);
-//    }
+    @Test
+    void should_calculateCost_givenBOGOF() {
+        basket.addItem(SIM_CARD);
+        basket.addItem(SIM_CARD);//Free
+        basket.addItem(SIM_CARD);
+
+        BigDecimal cost = checkout.calculateCost(basket);
+        assertEquals(new BigDecimal(40_00), cost);
+    }
 
     @Test
     void should_calculateTax_givenBOGOF() {
@@ -152,7 +154,7 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);
         Receipt receipt = checkout.checkout(basket);
 
-        ReceiptLine expected = new ReceiptLine("Sim Card", 2000, new BigDecimal(240), 0);
+        ReceiptLine expected = new ReceiptLine("Sim Card", new BigDecimal(2000), new BigDecimal(240), new BigDecimal(0));
         assertEquals(expected, receipt.getLines().get(0));
     }
 
@@ -164,7 +166,7 @@ class CheckoutTest {
         Receipt receipt = checkout.checkout(basket);
 
         ReceiptLine first = receipt.getLines().get(0);
-        ReceiptLine expected = new ReceiptLine("Sim Card * 3", 4000, new BigDecimal(480), 2000);
+        ReceiptLine expected = new ReceiptLine("Sim Card * 3", new BigDecimal(4000), new BigDecimal(480), new BigDecimal(2000));
         assertEquals(expected, first);
     }
 

@@ -1,7 +1,7 @@
 package duncan.atkinson;
 
-import duncan.atkinson.basket.OrderLine;
 import duncan.atkinson.basket.ShoppingBasket;
+import duncan.atkinson.dataobjects.OrderLine;
 import duncan.atkinson.inventory.ProductId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
