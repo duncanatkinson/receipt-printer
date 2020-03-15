@@ -7,7 +7,6 @@ import duncan.atkinson.dataobjects.ReceiptLine;
 import java.text.NumberFormat;
 
 import static java.lang.System.lineSeparator;
-import static java.lang.System.out;
 
 public class ReceiptPrinter {
 
@@ -57,7 +56,7 @@ public class ReceiptPrinter {
 
     private void outputDiscountInfoLine(StringBuilder output, ReceiptLine line) {
         String discountPrice = "-" + formatPrice(line.getDiscountAmount());
-        output.append(insertPadding(line.getDiscountReason(),discountPrice));
+        output.append(insertPadding(line.getDiscountReason(), discountPrice));
         output.append(lineSeparator());
     }
 

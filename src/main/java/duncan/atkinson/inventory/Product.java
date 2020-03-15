@@ -50,9 +50,9 @@ public class Product {
     }
 
     public Set<Taxonomy> getTaxonomy() {
-        if(taxonomy == null){
+        if (taxonomy == null) {
             return Collections.emptySet();
-        }else{
+        } else {
             return unmodifiableSet(taxonomy);
         }
     }

@@ -7,10 +7,10 @@ import java.util.Objects;
 
 /**
  * CHF represents an amount of Currency, in particular the Swiss Franc
- *
+ * <p>
  * It is immutable all functions such as {@link #multiply(String)} will return a new value
  * and not mutate the instance.
- *
+ * <p>
  * TODO implement equals hashcode tests
  */
 public class CHF {
@@ -53,7 +53,7 @@ public class CHF {
         return new CHF(this.amount.multiply(new BigDecimal(amount)));
     }
 
-    public String formatted(){
+    public String formatted() {
         return pricePrintingFormat.format(amount);
     }
 
@@ -84,7 +84,7 @@ public class CHF {
 
     @Override
     public String toString() {
-        return CURRENCY_STRING +"{" + pricePrintingFormat.format(amount) + '}';
+        return CURRENCY_STRING + "{" + pricePrintingFormat.format(amount) + '}';
     }
 
     public String currencyString() {

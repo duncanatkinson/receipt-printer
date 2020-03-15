@@ -40,7 +40,7 @@ class CHFTest {
         CHF onePercent = amount.divide(1000);
         CHF sumOfOnePercents = new CHF(0);
         for (int i = 0; i < 1000; i++) {
-            sumOfOnePercents = CHF.add(sumOfOnePercents,onePercent);
+            sumOfOnePercents = CHF.add(sumOfOnePercents, onePercent);
         }
 
         CHF expectedSum = new CHF("0.01");

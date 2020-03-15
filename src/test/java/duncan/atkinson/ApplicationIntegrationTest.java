@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * These tests should be kept to a minimum as they are brittle and hard to maintain.
- */
 public class ApplicationIntegrationTest {
 
     private static Application application;
@@ -37,7 +34,7 @@ public class ApplicationIntegrationTest {
     }
 
     @Test
-    void name() {
+    void buy10OfEverything() {
         String output = application.process(new String[]{
                 "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD", "SIM_CARD",
                 "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE", "PHONE_CASE",
