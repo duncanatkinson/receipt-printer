@@ -7,11 +7,12 @@ import duncan.atkinson.dataobjects.ReceiptLine;
 import java.text.NumberFormat;
 
 import static java.lang.System.lineSeparator;
+import static java.lang.System.out;
 
 public class ReceiptPrinter {
 
     private static final String SPACES = "                                                                              ";
-    private static final String SEPARATOR_CHARACTERS = "================================================================";
+    private static final String HORIZONTAL_LINE_CHARACTERS = "================================================================";
 
     private final int targetPrintoutWidth;
 
@@ -32,17 +33,21 @@ public class ReceiptPrinter {
             throw new IllegalArgumentException("Too narrow, printer cannot print narrower than" + 21);
         }
         this.targetPrintoutWidth = targetPrintoutWidth;
-        priceFormat =  NumberFormat.getInstance();
+        priceFormat = NumberFormat.getInstance();
         priceFormat.setGroupingUsed(true);
         priceFormat.setMinimumFractionDigits(2);
     }
 
     public String print(Receipt receipt) {
         StringBuilder output = new StringBuilder();
+        output.append(horizontalLine()).append(lineSeparator());
         receipt.getLines().forEach(line -> {
             outPutItemLine(output, line);
+            if (line.hasDiscount()) {
+                outputDiscountInfoLine(output, line);
+            }
         });
-        output.append(separator()).append(lineSeparator());
+        output.append(horizontalLine()).append(lineSeparator());
         output.append(insertPadding("Sales Tax", formatPrice(receipt.getTaxAmount())));
         output.append(lineSeparator());
         output.append(insertPadding("Total", formatPrice(receipt.getTotalCost())));
@@ -50,12 +55,18 @@ public class ReceiptPrinter {
         return output.toString();
     }
 
+    private void outputDiscountInfoLine(StringBuilder output, ReceiptLine line) {
+        String discountPrice = "-" + formatPrice(line.getDiscountAmount());
+        output.append(insertPadding(line.getDiscountReason(),discountPrice));
+        output.append(lineSeparator());
+    }
+
     private String formatPrice(CHF taxAmount) {
         return taxAmount.formatted() + " " + taxAmount.currencyString();
     }
 
-    private String separator() {
-        return SEPARATOR_CHARACTERS.substring(0, targetPrintoutWidth);
+    private String horizontalLine() {
+        return HORIZONTAL_LINE_CHARACTERS.substring(0, targetPrintoutWidth);
     }
 
     private void outPutItemLine(StringBuilder output, ReceiptLine line) {

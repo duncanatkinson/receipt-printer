@@ -1,6 +1,5 @@
-package duncan.atkinson;
+package duncan.atkinson.basket;
 
-import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.dataobjects.OrderLine;
 import duncan.atkinson.inventory.ProductId;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +62,7 @@ class ShoppingBasketTest {
         basket.addItem(WIRELESS_EARPHONES);
         basket.addItem(PHONE_CASE);
 
-        Set<OrderLine> orderLines = basket.getOrderLines();
+        List<OrderLine> orderLines = basket.getOrderLines();
         assertEquals(3, orderLines.size());
         assertTrue(orderLines.containsAll(asList(
                 new OrderLine(WIRELESS_EARPHONES, 2),

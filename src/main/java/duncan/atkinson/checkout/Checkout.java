@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.disjoint;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Calculates the cost of a shopping basket
@@ -37,20 +38,19 @@ public class Checkout {
     protected CHF calculateCost(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
         return basket.getOrderLines().stream()
-                .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
+                .map(productAndCount -> {
+                    CostResult costResult = calculateCost(productAndCount, basket);
+                    return costResult.costInCents.minus(costResult.discountAmount);
+                })
                 .reduce(CHF::add)
                 .orElse(new CHF(0));
     }
 
-    public CHF calculateTax(ShoppingBasket basket) {
-        Set<OrderLine> orderLines = basket.getOrderLines();
-        CHF taxableSum = orderLines.stream()
-                .filter(this::taxApplies)
-                .map(orderLine -> calculateCost(orderLine, basket))
-                .map(costResult -> costResult.costInCents)
+    public CHF calculateTax(List<ReceiptLine> receiptLines) {
+        return receiptLines.stream()
+                .map(ReceiptLine::getTax)
                 .reduce(CHF::add)
                 .orElse(new CHF(0));
-        return calculateTax(taxableSum);
     }
 
     private void checkMaxPurchaseLimitsNotHit(ShoppingBasket basket) throws CheckoutException {
@@ -76,6 +76,9 @@ public class Checkout {
     /**
      * Calculate the cost of a number of products in the basket
      * note this isn't just a simple sum, because it is possible discounts apply.
+     * <p>
+     * There is a potential issue here that if a bogof and a special offer both apply
+     * then the description will be just special offer.
      *
      * @param orderLine is a map entry consisting of the product ID and the count of that product.
      * @param basket    used for discounts
@@ -85,13 +88,23 @@ public class Checkout {
         ProductId productId = orderLine.getProductId();
         Product product = inventory.get(productId);
         int beforeDiscountCost = product.getPriceInCents() * orderLine.getCount();
-        int numberOfItems = adjustCountIfBOGOF(orderLine);
-        int actualCostInCents = product.getPriceInCents() * numberOfItems;
+        int numberOfItems = orderLine.getCount();
+        String discountDescription = null;
+        if (inventory.get(orderLine.getProductId()).getBuyOneGetOneFree() && orderLine.getCount() > 1) {
+            numberOfItems = adjustCountForBOGOF(orderLine);
+            discountDescription = "BOGOF";
+        }
+        int costAdjustedForBogof = product.getPriceInCents() * numberOfItems;
 
-        actualCostInCents = applyTaxonomyDiscounts(basket, product, actualCostInCents);
-        CHF costInWholeCurrencyUnits = new CHF(actualCostInCents).divide(100);
-        CHF discountInWholeCurrencyUnits = new CHF(beforeDiscountCost - actualCostInCents).divide(100);
-        return new CostResult(costInWholeCurrencyUnits, discountInWholeCurrencyUnits);
+        int finalCost = adjustCostForTaxonomyDiscounts(basket, product, costAdjustedForBogof);
+
+        if (costAdjustedForBogof != finalCost) {
+            discountDescription = "SPECIAL";
+        }
+
+        CHF costInWholeCurrencyUnits = new CHF(beforeDiscountCost).divide(100);
+        CHF discountInWholeCurrencyUnits = new CHF(beforeDiscountCost - finalCost).divide(100);
+        return new CostResult(costInWholeCurrencyUnits, discountInWholeCurrencyUnits, discountDescription);
     }
 
     /**
@@ -100,18 +113,22 @@ public class Checkout {
     private static class CostResult {
         private CHF costInCents;
         private CHF discountAmount;
+        private String discountDescription;
 
-        public CostResult(CHF costInCents, CHF discountAmount) {
+        public CostResult(CHF costInCents, CHF discountAmount, String discountDescription) {
             this.costInCents = costInCents;
             this.discountAmount = discountAmount;
+            this.discountDescription = discountDescription;
         }
+
+
     }
 
-    private int applyTaxonomyDiscounts(ShoppingBasket basket, Product product, int priceInCents) {
+    private int adjustCostForTaxonomyDiscounts(ShoppingBasket basket, Product product, int priceInCents) {
         if (product.hasTaxonomyDiscount()) {
             Taxonomy taxonomyTriggeringDiscount = product.getTaxonomyDiscount().getTaxonomy();
-            Set<ProductId> productIdsInBasket = basket.getAllDistinctProductIds();
-            Set<ProductId> productIdsMatchingTaxonomy = inventory.getProductIdsWithTaxonomy(taxonomyTriggeringDiscount);
+            List<ProductId> productIdsInBasket = basket.getAllDistinctProductIds();
+            List<ProductId> productIdsMatchingTaxonomy = inventory.getProductIdsWithTaxonomy(taxonomyTriggeringDiscount);
             if (isIntersection(productIdsMatchingTaxonomy, productIdsInBasket)) {
                 priceInCents = (priceInCents / 100) * (100 - product.getTaxonomyDiscount().getPercentageDiscount());
             }
@@ -119,17 +136,14 @@ public class Checkout {
         return priceInCents;
     }
 
-    private boolean isIntersection(Set<ProductId> set1, Set<ProductId> set2) {
+    private boolean isIntersection(List<ProductId> set1, List<ProductId> set2) {
         return !disjoint(set2, set1);
     }
 
-    private int adjustCountIfBOGOF(OrderLine orderLine) {
-        if (inventory.get(orderLine.getProductId()).getBuyOneGetOneFree()) {
-            int bogofCount = orderLine.getCount() / 2;
-            bogofCount += orderLine.getCount() % 2;
-            return bogofCount;
-        }
-        return orderLine.getCount();
+    private int adjustCountForBOGOF(OrderLine orderLine) {
+        int bogofCount = orderLine.getCount() / 2;
+        bogofCount += orderLine.getCount() % 2;
+        return bogofCount;
     }
 
 
@@ -137,24 +151,31 @@ public class Checkout {
         return !inventory.get(orderLine.getProductId()).getTaxExempt();
     }
 
-    public Receipt checkout(ShoppingBasket basket) {
+    public Receipt checkout(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
         List<ReceiptLine> lines = basket.getOrderLines().stream()
                 .map(orderLine -> calculate(orderLine, basket))
-                .collect(Collectors.toList());
-        return new Receipt(lines, calculateCost(basket), calculateTax(basket));
+                .collect(toList());
+        CHF taxAmount = calculateTax(lines);
+        CHF totalCost = calculateCost(basket);
+        return new Receipt(lines, CHF.add(totalCost, taxAmount), taxAmount);
     }
 
     private ReceiptLine calculate(OrderLine orderLine, ShoppingBasket basket) {
         CostResult costResult = calculateCost(orderLine, basket);
         CHF tax = new CHF(0);
         if (taxApplies(orderLine)) {
-            tax = calculateTax(costResult.costInCents);
+            CHF actualCost = costResult.costInCents.minus(costResult.discountAmount);
+            tax = calculateTax(actualCost);
         }
         String productDescription = inventory.get(orderLine.getProductId()).getName();
         if (orderLine.getCount() > 1) {
             productDescription += " * " + orderLine.getCount();
         }
-        return new ReceiptLine(productDescription, costResult.costInCents, tax, costResult.discountAmount);
+        if (costResult.discountAmount.equals(new CHF(0))) {
+            return new ReceiptLine(productDescription, costResult.costInCents, tax);
+        } else {
+            return new ReceiptLine(productDescription, costResult.costInCents, tax, costResult.discountAmount, costResult.discountDescription);
+        }
     }
 }

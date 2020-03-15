@@ -13,8 +13,8 @@ class ReceiptLineTest {
 
     @Test
     void should_getCost() {
-        ReceiptLine line1 = new ReceiptLine("test", new CHF("10.00"), new CHF(0), new CHF(0));
-        ReceiptLine line2 = new ReceiptLine("test", new CHF("10.00"), new CHF(0), new CHF(0));
+        ReceiptLine line1 = new ReceiptLine("test", new CHF("10.00"), new CHF(0));
+        ReceiptLine line2 = new ReceiptLine("test", new CHF("10.00"), new CHF(0));
 
         assertEquals(line1, line2);
     }

@@ -23,14 +23,14 @@ class ReceiptTest {
     @Test
     void getLines_should_returnImmutableList() {
         assertThrows(UnsupportedOperationException.class, () -> {
-            aReceipt().getLines().add(new ReceiptLine("a", new CHF(10_00), new CHF("120"), new CHF(0)));
+            aReceipt().getLines().add(new ReceiptLine("a", new CHF(10_00), new CHF("120")));
         });
     }
 
     private Receipt aReceipt() {
         return new Receipt(asList(
-                new ReceiptLine("a", new CHF(10_00), new CHF("120"), new CHF(0)),
-                new ReceiptLine("b", new CHF(5_00), new CHF("60"), new CHF(0))
+                new ReceiptLine("a", new CHF(10_00), new CHF("120")),
+                new ReceiptLine("b", new CHF(5_00), new CHF("60"))
         ), new CHF("16.80"), new CHF("1.80"));
     }
 }

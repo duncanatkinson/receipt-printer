@@ -37,18 +37,18 @@ public class ShoppingBasket {
     /**
      * @return orderLines consisting of the productId and a count of that product.
      */
-    public Set<OrderLine> getOrderLines() {
+    public List<OrderLine> getOrderLines() {
         Map<ProductId, Long> countsByProductId = products.stream()
                 .collect(groupingBy(identity(), counting()));
         return countsByProductId
                 .entrySet().stream()
                 .map(entry -> new OrderLine(entry.getKey(), entry.getValue().intValue()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    public Set<ProductId> getAllDistinctProductIds() {
+    public List<ProductId> getAllDistinctProductIds() {
         return this.getOrderLines().stream()
                 .map(OrderLine::getProductId)
-                .collect(toSet());
+                .collect(toList());
     }
 }

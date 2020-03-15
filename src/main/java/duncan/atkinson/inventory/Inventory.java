@@ -1,11 +1,11 @@
 package duncan.atkinson.inventory;
 
-import java.util.Set;
+import java.util.List;
 
 public interface Inventory {
     void init();
 
     Product get(ProductId productId);
 
-    Set<ProductId> getProductIdsWithTaxonomy(Taxonomy taxonomyTriggeringDiscount);
+    List<ProductId> getProductIdsWithTaxonomy(Taxonomy taxonomyTriggeringDiscount);
 }

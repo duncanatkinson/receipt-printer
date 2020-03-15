@@ -10,6 +10,8 @@ import java.util.Objects;
  *
  * It is immutable all functions such as {@link #multiply(String)} will return a new value
  * and not mutate the instance.
+ *
+ * TODO implement equals hashcode tests
  */
 public class CHF {
 
@@ -61,6 +63,10 @@ public class CHF {
 
     public CHF divide(int i) {
         return new CHF(this.amount.divide(new BigDecimal(i), RoundingMode.HALF_UP));
+    }
+
+    public CHF minus(CHF discountAmount) {
+        return new CHF(this.amount.add(discountAmount.getAmount().negate()));
     }
 
     @Override

@@ -53,7 +53,7 @@ class CheckoutTest {
     void should_calculateTax_givenCheapTaxableItem() {
         basket.addItem(PHONE_CASE);// CHF 00.09
 
-        CHF tax = checkout.calculateTax(basket);
+        CHF tax = checkout.checkout(basket).getTaxAmount();
         assertEquals(new CHF("0.01080"), tax);
     }
 
@@ -61,7 +61,7 @@ class CheckoutTest {
     void should_calculateTax_givenNonTaxableItem() {
         basket.addItem(PHONE_INSURANCE);
 
-        CHF tax = checkout.calculateTax(basket);
+        CHF tax = checkout.checkout(basket).getTaxAmount();
         assertEquals(new CHF(0), tax);
     }
 
@@ -70,7 +70,7 @@ class CheckoutTest {
         basket.addItem(PHONE_INSURANCE);
         basket.addItem(WIRELESS_EARPHONES);
 
-        CHF tax = checkout.calculateTax(basket);
+        CHF tax = checkout.checkout(basket).getTaxAmount();
         assertEquals(new CHF(6), tax);
     }
 
@@ -90,7 +90,7 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);//Free
         basket.addItem(SIM_CARD);
 
-        CHF tax = checkout.calculateTax(basket);
+        CHF tax = checkout.checkout(basket).getTaxAmount();
         assertEquals(new CHF("4.80"), tax);
     }
 
@@ -126,7 +126,7 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);
 
         Receipt receipt = checkout.checkout(basket);
-        assertEquals(new CHF(140), receipt.getTotalCost());
+        assertEquals(new CHF("142.40"), receipt.getTotalCost());
     }
 
     @Test
@@ -135,7 +135,7 @@ class CheckoutTest {
         basket.addItem(WIRELESS_EARPHONES);
         // we expect a discount of 20% (24) on your phone insurance bringing it down to 96
 
-        CHF tax = checkout.calculateTax(basket);
+        CHF tax = checkout.checkout(basket).getTaxAmount();
         assertEquals(new CHF(6), tax);
     }
 
@@ -153,7 +153,7 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);
         Receipt receipt = checkout.checkout(basket);
 
-        ReceiptLine expected = new ReceiptLine("Sim Card", new CHF("20.00"), new CHF("2.40"), new CHF(0));
+        ReceiptLine expected = new ReceiptLine("Sim Card", new CHF("20.00"), new CHF("2.40"));
         assertEquals(expected.getCost(), receipt.getLines().get(0).getCost());
         assertEquals(expected.getTax(), receipt.getLines().get(0).getTax());
         assertEquals(expected, receipt.getLines().get(0));
@@ -166,9 +166,11 @@ class CheckoutTest {
         basket.addItem(SIM_CARD);
         Receipt receipt = checkout.checkout(basket);
 
-        ReceiptLine first = receipt.getLines().get(0);
-        ReceiptLine expected = new ReceiptLine("Sim Card * 3", new CHF(40), new CHF("4.80"), new CHF(20));
-        assertEquals(expected, first);
+        ReceiptLine actual = receipt.getLines().get(0);
+        ReceiptLine expected = new ReceiptLine("Sim Card * 3", new CHF(60), new CHF("4.80"), new CHF(20), "BOGOF");
+        assertEquals(expected, actual);
+        assertEquals(new CHF("4.80"), receipt.getTaxAmount());
+        assertEquals(new CHF("44.80"), receipt.getTotalCost());
     }
 
 }

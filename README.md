@@ -1,5 +1,7 @@
-# Simple currency Test
-## Duncan Atkinson
+# Work Assignment - VIII
+## "Big" Shop
+
+#### Duncan Atkinson
 
 to build a simple
 

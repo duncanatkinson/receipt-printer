@@ -2,6 +2,7 @@ package duncan.atkinson;
 
 import duncan.atkinson.basket.ShoppingBasket;
 import duncan.atkinson.checkout.Checkout;
+import duncan.atkinson.checkout.CheckoutException;
 import duncan.atkinson.checkout.ReceiptPrinter;
 import duncan.atkinson.dataobjects.Receipt;
 import duncan.atkinson.inventory.Inventory;
@@ -26,7 +27,11 @@ public class Application {
         receiptPrinter = new ReceiptPrinter(40);
     }
 
-    private void process(String[] args) {
+    /**
+     * @param args the product items to purchase
+     * @return the output string to aid testing primarily
+     */
+    protected String process(String[] args) {
         ShoppingBasket basket = new ShoppingBasket();
         for (String arg : args) {
             List<String> productIdStrings = productIdsAsStrings();
@@ -37,9 +42,15 @@ public class Application {
                 System.out.println("'" + arg + "' is not a product");
             }
         }
-        Receipt receipt = checkout.checkout(basket);
-        String output = receiptPrinter.print(receipt);
+        String output;
+        try {
+            Receipt receipt = checkout.checkout(basket);
+            output = receiptPrinter.print(receipt);
+        } catch (CheckoutException checkoutException) {
+            output = String.format("Unable to checkout because: %s Please adjust your basket.", checkoutException.getMessage());
+        }
         System.out.println(output);
+        return output;
     }
 
     private List<String> productIdsAsStrings() {
