@@ -1,11 +1,10 @@
 package duncan.atkinson.checkout;
 
+import duncan.atkinson.dataobjects.CHF;
 import duncan.atkinson.dataobjects.Receipt;
 import duncan.atkinson.dataobjects.ReceiptLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReceiptPrinterTest {
 
-    public static final BigDecimal A_PRICE = new BigDecimal("0");
+    public static final CHF A_PRICE = new CHF("0");
     private ReceiptPrinter printer;
 
     @BeforeEach
@@ -44,8 +43,8 @@ class ReceiptPrinterTest {
     @Test
     void print_should_printCorrectValues() {
         Receipt receipt = new Receipt(singletonList(
-                new ReceiptLine("Socks", new BigDecimal(2399), new BigDecimal(288), new BigDecimal(0))
-        ), new BigDecimal("26.87"), new BigDecimal("2.88"));
+                new ReceiptLine("Socks", new CHF("23.99"), new CHF("2.88"), new CHF(0))
+        ), new CHF("26.87"), new CHF("2.88"));
         String output = printer.print(receipt);
 
         assertTrue(output.contains("Socks"));
@@ -59,7 +58,7 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatOutput() {
         Receipt receipt = new Receipt(singletonList(
-                new ReceiptLine("Socks", new BigDecimal(2399), new BigDecimal(239), new BigDecimal(0))
+                new ReceiptLine("Socks", new CHF("23.99"), new CHF("2.39"), new CHF(0))
         ), A_PRICE, A_PRICE);
         String output = printer.print(receipt);
         assertEquals("Socks          23.99 CHF", output.substring(0, 24));
@@ -68,8 +67,8 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatOutput_givenVariableLengthDescriptionsAndPrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new BigDecimal(199), new BigDecimal("23.88"), new BigDecimal(0)),
-                new ReceiptLine("Sausages", new BigDecimal(2399), new BigDecimal("287.88"), new BigDecimal(0))
+                new ReceiptLine("Socks", new CHF(199), new CHF("23.88"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF(2399), new CHF("287.88"), new CHF(0))
         ), A_PRICE, A_PRICE);
         String output = printer.print(receipt);
         assertEquals("Socks           1.99 CHF", output.substring(0, 24));
@@ -80,7 +79,7 @@ class ReceiptPrinterTest {
     void print_shouldFormatOutput_givenLongProductDescription() {
         printer = new ReceiptPrinter(40);
         Receipt receipt = new Receipt(singletonList(
-                new ReceiptLine("Some comfortable and expensive socks", new BigDecimal(1_000_00), new BigDecimal("12000"), new BigDecimal(0))
+                new ReceiptLine("Some comfortable and expensive socks", new CHF(1_000_00), new CHF("12000"), new CHF(0))
         ), A_PRICE, A_PRICE);
         String output = printer.print(receipt);
         String firstLine = output.substring(0, output.indexOf(System.lineSeparator()));
@@ -91,9 +90,9 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatWholeReceipt_givenLargePrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new BigDecimal(1_000_99), new BigDecimal("0"), new BigDecimal(0)),
-                new ReceiptLine("Sausages", new BigDecimal(2_300_99), new BigDecimal("0"), new BigDecimal(0))
-        ), new BigDecimal("1000000.00"), new BigDecimal("1000.00"));
+                new ReceiptLine("Socks", new CHF(1_000_99), new CHF("0"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF(2_300_99), new CHF("0"), new CHF(0))
+        ), new CHF("1000000.00"), new CHF("1000.00"));
         printer = new ReceiptPrinter();
         String output = printer.print(receipt);
         assertEquals("" +
@@ -109,9 +108,9 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatWholeReceipt_givenSmallPrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new BigDecimal(1), new BigDecimal("0"), new BigDecimal(0)),
-                new ReceiptLine("Sausages", new BigDecimal(1), new BigDecimal("0"), new BigDecimal(0))
-        ), new BigDecimal(".01"), new BigDecimal(".01"));
+                new ReceiptLine("Socks", new CHF(1), new CHF("0"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF(1), new CHF("0"), new CHF(0))
+        ), new CHF(".01"), new CHF(".01"));
         printer = new ReceiptPrinter();
         String output = printer.print(receipt);
         assertEquals("" +

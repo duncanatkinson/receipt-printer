@@ -2,8 +2,6 @@ package duncan.atkinson.dataobjects;
 
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -15,8 +13,8 @@ class ReceiptLineTest {
 
     @Test
     void should_getCost() {
-        ReceiptLine line1 = new ReceiptLine("test", new BigDecimal("10.00"), new BigDecimal(0), new BigDecimal(0));
-        ReceiptLine line2 = new ReceiptLine("test", new BigDecimal("10.00"), new BigDecimal(0), new BigDecimal(0));
+        ReceiptLine line1 = new ReceiptLine("test", new CHF("10.00"), new CHF(0), new CHF(0));
+        ReceiptLine line2 = new ReceiptLine("test", new CHF("10.00"), new CHF(0), new CHF(0));
 
         assertEquals(line1, line2);
     }

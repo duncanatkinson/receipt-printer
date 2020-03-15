@@ -1,6 +1,7 @@
 package duncan.atkinson.checkout;
 
 import duncan.atkinson.basket.ShoppingBasket;
+import duncan.atkinson.dataobjects.CHF;
 import duncan.atkinson.dataobjects.OrderLine;
 import duncan.atkinson.dataobjects.Receipt;
 import duncan.atkinson.dataobjects.ReceiptLine;
@@ -9,12 +10,10 @@ import duncan.atkinson.inventory.Product;
 import duncan.atkinson.inventory.ProductId;
 import duncan.atkinson.inventory.Taxonomy;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.math.RoundingMode.HALF_UP;
 import static java.util.Collections.disjoint;
 
 /**
@@ -23,7 +22,7 @@ import static java.util.Collections.disjoint;
  */
 public class Checkout {
 
-    private static final double TAX_RATE = 12.0;
+    private static final String TAX_RATE = "12.0";
     private final Inventory inventory;
 
     public Checkout(Inventory inventory) {
@@ -35,22 +34,22 @@ public class Checkout {
      * @param basket to calculate
      * @return the total cost of the contents of the basket in cents applying all discounts but without the tax
      */
-    protected BigDecimal calculateCost(ShoppingBasket basket) throws CheckoutException {
+    protected CHF calculateCost(ShoppingBasket basket) throws CheckoutException {
         checkMaxPurchaseLimitsNotHit(basket);
         return basket.getOrderLines().stream()
                 .map(productAndCount -> calculateCost(productAndCount, basket).costInCents)
-                .reduce(BigDecimal::add)
-                .orElse(new BigDecimal(0));
+                .reduce(CHF::add)
+                .orElse(new CHF(0));
     }
 
-    public BigDecimal calculateTax(ShoppingBasket basket) {
+    public CHF calculateTax(ShoppingBasket basket) {
         Set<OrderLine> orderLines = basket.getOrderLines();
-        BigDecimal taxableSum = orderLines.stream()
+        CHF taxableSum = orderLines.stream()
                 .filter(this::taxApplies)
                 .map(orderLine -> calculateCost(orderLine, basket))
                 .map(costResult -> costResult.costInCents)
-                .reduce(BigDecimal::add)
-                .orElse(new BigDecimal(0));
+                .reduce(CHF::add)
+                .orElse(new CHF(0));
         return calculateTax(taxableSum);
     }
 
@@ -69,9 +68,9 @@ public class Checkout {
      * @param taxableSum
      * @return tax payable on sum
      */
-    private BigDecimal calculateTax(BigDecimal taxableSum) {
-        BigDecimal tax = taxableSum.multiply(new BigDecimal(TAX_RATE));
-        return tax.divide(new BigDecimal(100), HALF_UP);
+    private CHF calculateTax(CHF taxableSum) {
+        CHF tax = taxableSum.multiply(TAX_RATE);
+        return tax.divide(100);
     }
 
     /**
@@ -87,20 +86,22 @@ public class Checkout {
         Product product = inventory.get(productId);
         int beforeDiscountCost = product.getPriceInCents() * orderLine.getCount();
         int numberOfItems = adjustCountIfBOGOF(orderLine);
-        int actualCost = product.getPriceInCents() * numberOfItems;
+        int actualCostInCents = product.getPriceInCents() * numberOfItems;
 
-        actualCost = applyTaxonomyDiscounts(basket, product, actualCost);
-        return new CostResult(new BigDecimal(actualCost), new BigDecimal(beforeDiscountCost - actualCost));
+        actualCostInCents = applyTaxonomyDiscounts(basket, product, actualCostInCents);
+        CHF costInWholeCurrencyUnits = new CHF(actualCostInCents).divide(100);
+        CHF discountInWholeCurrencyUnits = new CHF(beforeDiscountCost - actualCostInCents).divide(100);
+        return new CostResult(costInWholeCurrencyUnits, discountInWholeCurrencyUnits);
     }
 
     /**
      * Just a small private internal class to hold the cost of an {@link OrderLine}
      */
     private static class CostResult {
-        private BigDecimal costInCents;
-        private BigDecimal discountAmount;
+        private CHF costInCents;
+        private CHF discountAmount;
 
-        public CostResult(BigDecimal costInCents, BigDecimal discountAmount) {
+        public CostResult(CHF costInCents, CHF discountAmount) {
             this.costInCents = costInCents;
             this.discountAmount = discountAmount;
         }
@@ -146,7 +147,7 @@ public class Checkout {
 
     private ReceiptLine calculate(OrderLine orderLine, ShoppingBasket basket) {
         CostResult costResult = calculateCost(orderLine, basket);
-        BigDecimal tax = new BigDecimal(0);
+        CHF tax = new CHF(0);
         if (taxApplies(orderLine)) {
             tax = calculateTax(costResult.costInCents);
         }

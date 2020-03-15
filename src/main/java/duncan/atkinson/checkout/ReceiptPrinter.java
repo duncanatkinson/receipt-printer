@@ -1,9 +1,9 @@
 package duncan.atkinson.checkout;
 
+import duncan.atkinson.dataobjects.CHF;
 import duncan.atkinson.dataobjects.Receipt;
 import duncan.atkinson.dataobjects.ReceiptLine;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 import static java.lang.System.lineSeparator;
@@ -50,24 +50,8 @@ public class ReceiptPrinter {
         return output.toString();
     }
 
-    //
-//    @Deprecated
-//    public String getTaxAsFormattedPrice() {
-//        return getTax().divide(new BigDecimal(100), HALF_UP) + CURRENCY;
-//    }
-//
-//    @Deprecated
-//    public String getTotalAsFormattedPrice() {
-//        int cost = lines.stream()
-//                .map(ReceiptLine::getCost)
-//                .mapToInt(Integer::intValue)
-//                .sum();
-//        BigDecimal total = new BigDecimal(cost).add(getTax());
-//        return total.divide(new BigDecimal(100), HALF_UP).toString() + CURRENCY;
-//    }
-
-    private String formatPrice(BigDecimal taxAmount) {
-        return priceFormat.format(taxAmount) + " CHF";
+    private String formatPrice(CHF taxAmount) {
+        return taxAmount.formatted() + " " + taxAmount.currencyString();
     }
 
     private String separator() {
