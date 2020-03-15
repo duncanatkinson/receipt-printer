@@ -67,8 +67,8 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatOutput_givenVariableLengthDescriptionsAndPrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new CHF(199), new CHF("23.88"), new CHF(0)),
-                new ReceiptLine("Sausages", new CHF(2399), new CHF("287.88"), new CHF(0))
+                new ReceiptLine("Socks", new CHF("1.99"), new CHF("23.88"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF("23.99"), new CHF("287.88"), new CHF(0))
         ), A_PRICE, A_PRICE);
         String output = printer.print(receipt);
         assertEquals("Socks           1.99 CHF", output.substring(0, 24));
@@ -79,7 +79,7 @@ class ReceiptPrinterTest {
     void print_shouldFormatOutput_givenLongProductDescription() {
         printer = new ReceiptPrinter(40);
         Receipt receipt = new Receipt(singletonList(
-                new ReceiptLine("Some comfortable and expensive socks", new CHF(1_000_00), new CHF("12000"), new CHF(0))
+                new ReceiptLine("Some comfortable and expensive socks", new CHF(1_000), new CHF(0), new CHF(0))
         ), A_PRICE, A_PRICE);
         String output = printer.print(receipt);
         String firstLine = output.substring(0, output.indexOf(System.lineSeparator()));
@@ -90,8 +90,8 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatWholeReceipt_givenLargePrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new CHF(1_000_99), new CHF("0"), new CHF(0)),
-                new ReceiptLine("Sausages", new CHF(2_300_99), new CHF("0"), new CHF(0))
+                new ReceiptLine("Socks", new CHF("1000.99"), new CHF("0"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF("2300.99"), new CHF("0"), new CHF(0))
         ), new CHF("1000000.00"), new CHF("1000.00"));
         printer = new ReceiptPrinter();
         String output = printer.print(receipt);
@@ -108,8 +108,8 @@ class ReceiptPrinterTest {
     @Test
     void print_shouldFormatWholeReceipt_givenSmallPrices() {
         Receipt receipt = new Receipt(asList(
-                new ReceiptLine("Socks", new CHF(1), new CHF("0"), new CHF(0)),
-                new ReceiptLine("Sausages", new CHF(1), new CHF("0"), new CHF(0))
+                new ReceiptLine("Socks", new CHF("0.01"), new CHF("0"), new CHF(0)),
+                new ReceiptLine("Sausages", new CHF("0.01"), new CHF("0"), new CHF(0))
         ), new CHF(".01"), new CHF(".01"));
         printer = new ReceiptPrinter();
         String output = printer.print(receipt);
